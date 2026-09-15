@@ -1,0 +1,29 @@
+# 示例章节：多分支 + 隐藏路径（需要 has_key）
+@chapter chapter1
+
+:: prologue
+@bg classroom_day
+@show yuki happy center
+@bgm bgm_daily
+yuki: 早上好！
+你推开了门。
+* 捡起钥匙 -> pick_key
+* 直接离开 -> hallway
+
+:: pick_key
+@set has_key = true
+@sfx key_pickup
+yuki: 这是什么？
+-> hallway
+
+:: hallway
+@bg hallway
+yuki: 走吧。
+* 打开储藏室 {has_key} -> secret
+* 离开 -> END
+
+:: secret
+@set found_secret = true
+@bgm stop
+你打开了储藏室的门。
+-> END

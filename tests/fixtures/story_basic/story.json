@@ -1,0 +1,11 @@
+{
+	"schema": 1,
+	"entry": "chapter_basic.start",
+	"chapters": ["chapter_basic"],
+	"characters": {},
+	"assets": {
+		"bg": ["room"],
+		"bgm": [],
+		"sfx": []
+	}
+}

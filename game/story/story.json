@@ -1,0 +1,13 @@
+{
+	"schema": 1,
+	"entry": "chapter1.prologue",
+	"chapters": ["chapter1"],
+	"characters": {
+		"yuki": {"name": "雪"}
+	},
+	"assets": {
+		"bg": ["classroom_day", "hallway"],
+		"bgm": ["bgm_daily"],
+		"sfx": ["key_pickup"]
+	}
+}

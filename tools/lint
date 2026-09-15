@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=/dev/null
+source "$ROOT/tools/_common.sh"
+
+usage() {
+	cat <<'EOF'
+用法: tools/lint [--help]
+
+三层检查:
+  1. gdformat --check   代码格式（需 gdtoolkit，未安装则跳过）
+  2. gdlint             静态检查（需 gdtoolkit，未安装则跳过）
+  3. 非确定性 API 扫描  game/ 下禁止裸 randi/randf/Time.* 等（内置，必跑）
+
+安装 gdtoolkit: pip3 install --user gdtoolkit
+
+退出码: 0 通过 / 1 发现问题 / 2 框架错误
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+	usage
+	exit 0
+fi
+
+if ! vng_resolve_godot; then
+	exit 2
+fi
+if ! vng_ensure_import "$ROOT"; then
+	exit 2
+fi
+
+status=0
+
+if command -v gdformat >/dev/null 2>&1; then
+	echo "[lint] gdformat --check"
+	gdformat --check "$ROOT/addons" "$ROOT/game" "$ROOT/tests" || status=1
+else
+	echo "[lint] 未安装 gdformat（pip3 install --user gdtoolkit），跳过格式检查" >&2
+fi
+
+if command -v gdlint >/dev/null 2>&1; then
+	echo "[lint] gdlint"
+	gdlint "$ROOT/addons" "$ROOT/game" "$ROOT/tests" || status=1
+else
+	echo "[lint] 未安装 gdlint，跳过静态检查" >&2
+fi
+
+echo "[lint] 非确定性 API 扫描（res://game）"
+"$GODOT_BIN" --headless --no-header --path "$ROOT" --script res://addons/vng_test/cli/lint_source.gd -- --root res://game || status=$?
+
+exit "$status"

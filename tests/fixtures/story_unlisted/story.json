@@ -1,0 +1,9 @@
+{
+	"schema": 1,
+	"entry": "chapter_listed.start",
+	"chapters": ["chapter_listed"],
+	"characters": {},
+	"assets": {
+		"bg": []
+	}
+}

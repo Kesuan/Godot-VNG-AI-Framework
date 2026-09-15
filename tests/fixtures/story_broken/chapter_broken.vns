@@ -1,0 +1,13 @@
+# 故意包含 lint 错误的夹具：跳转 typo / flag typo / 未知资源与角色 / 不可达节点
+@chapter chapter_broken
+
+:: start
+@bg missing_bg
+@show ghost happy center
+* 打招呼 {met_yyuki} -> gret
+* 无视 -> END
+
+:: greet
+@set met_yuki = true
+你好。
+-> END

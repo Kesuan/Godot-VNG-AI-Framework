@@ -1,0 +1,6 @@
+@chapter chapter_basic
+
+:: start
+@bg room
+你好。
+-> END

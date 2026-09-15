@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=/dev/null
+source "$ROOT/tools/_common.sh"
+
+usage() {
+	cat <<'EOF'
+用法: tools/story <build|check|lint> [--story-dir <目录>]
+
+命令:
+  build   编译 .vns → compiled/*.json（含结构校验与 lint）
+  check   校验编译产物是否最新
+  lint    仅做结构与图分析检查
+
+选项:
+  --story-dir <dir>  剧本目录（默认 res://game/story）
+
+退出码: 0 通过 / 1 有错误 / 2 框架错误
+EOF
+}
+
+if [[ $# -eq 0 ]]; then
+	usage
+	exit 2
+fi
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+	usage
+	exit 0
+fi
+
+if ! vng_resolve_godot; then
+	exit 2
+fi
+if ! vng_ensure_import "$ROOT"; then
+	exit 2
+fi
+
+exec "$GODOT_BIN" --headless --no-header --path "$ROOT" --script res://addons/vns/cli/story_cli.gd -- "$@"

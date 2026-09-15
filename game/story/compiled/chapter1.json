@@ -1,0 +1,226 @@
+{
+	"chapter": "chapter1",
+	"nodes": {
+		"hallway": {
+			"id": "hallway",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 19
+			},
+			"steps": [
+				{
+					"asset": "hallway",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 20
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 21
+					},
+					"text": "走吧。",
+					"who": "yuki"
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"cond": "has_key",
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 22
+							},
+							"target": "secret",
+							"text": "打开储藏室"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 23
+							},
+							"target": "END",
+							"text": "离开"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 22
+					}
+				}
+			]
+		},
+		"pick_key": {
+			"id": "pick_key",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 13
+			},
+			"steps": [
+				{
+					"assign": "=",
+					"name": "has_key",
+					"op": "set",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 14
+					},
+					"value": true
+				},
+				{
+					"asset": "key_pickup",
+					"op": "sfx",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 15
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 16
+					},
+					"text": "这是什么？",
+					"who": "yuki"
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 17
+					},
+					"target": "hallway"
+				}
+			]
+		},
+		"prologue": {
+			"id": "prologue",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 4
+			},
+			"steps": [
+				{
+					"asset": "classroom_day",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 5
+					}
+				},
+				{
+					"char": "yuki",
+					"expr": "happy",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 6
+					}
+				},
+				{
+					"asset": "bgm_daily",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 7
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 8
+					},
+					"text": "早上好！",
+					"who": "yuki"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 9
+					},
+					"text": "你推开了门。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 10
+							},
+							"target": "pick_key",
+							"text": "捡起钥匙"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 11
+							},
+							"target": "hallway",
+							"text": "直接离开"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 10
+					}
+				}
+			]
+		},
+		"secret": {
+			"id": "secret",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 25
+			},
+			"steps": [
+				{
+					"assign": "=",
+					"name": "found_secret",
+					"op": "set",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 26
+					},
+					"value": true
+				},
+				{
+					"asset": "stop",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 27
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 28
+					},
+					"text": "你打开了储藏室的门。",
+					"who": ""
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 29
+					},
+					"target": "END"
+				}
+			]
+		}
+	},
+	"schema": 1,
+	"source": "res://game/story/chapter1.vns",
+	"source_hash": "179160313c9955bb63a09d52b0b81ecd56ed7b268e50c2af615c4ff249dfc94f"
+}

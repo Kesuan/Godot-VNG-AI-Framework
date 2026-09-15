@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=/dev/null
+source "$ROOT/tools/_common.sh"
+
+usage() {
+	cat <<'EOF'
+用法: tools/test [选项] [-- <runner 参数>]
+
+选项:
+  -h, --help           显示帮助
+  --reimport           重新导入项目（生成 .godot 脚本类缓存）
+  --fast               仅运行 tests/unit（秒级反馈）
+  --filter <glob>      过滤测试（文件路径 / file::test；可重复）
+  --tags <a,b>         仅运行含任一 tag 的用例
+  --rerun              仅重跑上次失败的用例
+  --seed <n>           运行种子（默认 0）
+  --timeout <sec>      单用例软超时（默认 10）
+  --hard-timeout <sec> 单子进程硬超时（默认 300）
+  --jobs <n>           并行子进程数（默认 min(4, CPU)）
+  --isolate-all        每个测试文件独立进程
+  --flake-check        全部跑两遍比对状态（检测 flake）
+  --update-traces      录制/更新 trace golden（需显式使用，会写入审计日志）
+  --min-tests <n>      用例数低于 n 视为失败
+  --report-dir <dir>   报告输出目录（默认 res://test-results）
+  --json               仅输出聚合 JSON 到 stdout
+  --list               仅列出发现的测试文件
+  其余参数原样透传给 runner（完整列表见 tools/test --help 或 runner USAGE）
+
+退出码契约:
+  0  全部通过
+  1  存在测试失败
+  2  框架/内部错误
+  3  未发现任何测试（防"假绿"）
+
+环境变量:
+  GODOT_BIN              Godot 可执行文件路径（默认自动探测）
+  VNG_TEST_WATCHDOG_SEC  runner 硬超时秒数（默认 1800，兜底防挂死）
+EOF
+}
+
+for arg in "$@"; do
+	case "$arg" in
+		-h|--help)
+			usage
+			exit 0
+			;;
+	esac
+done
+
+if ! vng_resolve_godot; then
+	exit 2
+fi
+
+if [[ "${1:-}" == "--reimport" ]]; then
+	echo "tools/test: 重新导入项目..." >&2
+	exec "$GODOT_BIN" --headless --no-header --path "$ROOT" --import
+fi
+
+if ! vng_ensure_import "$ROOT"; then
+	exit 2
+fi
+
+WATCHDOG_SEC="${VNG_TEST_WATCHDOG_SEC:-1800}"
+
+"$GODOT_BIN" --headless --no-header --path "$ROOT" --script res://addons/vng_test/cli/run_tests.gd -- "$@" &
+runner_pid=$!
+
+(
+	elapsed=0
+	while kill -0 "$runner_pid" 2>/dev/null; do
+		if [[ "$elapsed" -ge "$WATCHDOG_SEC" ]]; then
+			echo "tools/test: runner 超过硬超时 ${WATCHDOG_SEC}s，强制终止（可用 VNG_TEST_WATCHDOG_SEC 调整）" >&2
+			pkill -P "$runner_pid" 2>/dev/null
+			kill -9 "$runner_pid" 2>/dev/null
+			break
+		fi
+		sleep 1
+		elapsed=$((elapsed + 1))
+	done
+) &
+watchdog_pid=$!
+
+trap 'kill "$watchdog_pid" 2>/dev/null' EXIT
+
+wait "$runner_pid"
+code=$?
+
+kill "$watchdog_pid" 2>/dev/null
+wait "$watchdog_pid" 2>/dev/null
+
+if [[ "$code" -gt 128 ]]; then
+	echo "tools/test: runner 被信号终止（exit=${code}）" >&2
+	exit 2
+fi
+exit "$code"

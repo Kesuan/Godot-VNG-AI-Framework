@@ -1,0 +1,13 @@
+{
+	"schema": 1,
+	"entry": "chapter_broken.start",
+	"chapters": ["chapter_broken"],
+	"characters": {
+		"yuki": {"name": "雪"}
+	},
+	"assets": {
+		"bg": [],
+		"bgm": [],
+		"sfx": []
+	}
+}

@@ -1,0 +1,12 @@
+# Godot
+.godot/
+
+# 测试运行产物
+test-results/*
+!test-results/.gitkeep
+
+# macOS
+.DS_Store
+
+# 暂缓接入：第一条可玩切片开始时移除此行（见 docs/plans/0001-test-framework-v1.md）
+vng-demo/
