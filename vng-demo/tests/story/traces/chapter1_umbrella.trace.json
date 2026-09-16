@@ -1,0 +1,160 @@
+{
+	"events": [
+		{
+			"node": "prologue",
+			"type": "node_entered"
+		},
+		{
+			"asset": "station_rain",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"asset": "thunder",
+			"type": "sfx_played"
+		},
+		{
+			"char": "rin",
+			"expr": "normal",
+			"pos": "left",
+			"type": "char_shown"
+		},
+		{
+			"text": "雨点砸在站台的顶棚上，风把雨丝吹进来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "你收起伞，看见长椅旁站着一个湿透的女孩。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "……末班车，停运了。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "你犹豫了一下。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"把伞递过去",
+				"什么都不做"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 0,
+			"text": "把伞递过去",
+			"type": "choice_selected"
+		},
+		{
+			"node": "share_umbrella",
+			"type": "node_entered"
+		},
+		{
+			"name": "shared_umbrella",
+			"type": "flag_changed",
+			"value": true
+		},
+		{
+			"char": "rin",
+			"expr": "smile",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "你走过去，把伞倾向她那一侧。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "谢谢……我叫凛。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"node": "platform",
+			"type": "node_entered"
+		},
+		{
+			"asset": "stop",
+			"type": "bgm_changed"
+		},
+		{
+			"asset": "bell",
+			"type": "sfx_played"
+		},
+		{
+			"text": "站台的广播响了起来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "由于暴雨，今晚所有列车停运，请改乘明早第一班。",
+			"type": "line_shown",
+			"who": "announcer"
+		},
+		{
+			"text": "凛看向你。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"邀请她去咖啡馆避雨",
+				"独自离开车站"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 0,
+			"text": "邀请她去咖啡馆避雨",
+			"type": "choice_selected"
+		},
+		{
+			"node": "cafe_invite",
+			"type": "node_entered"
+		},
+		{
+			"asset": "cafe_night",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"char": "rin",
+			"expr": "smile",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "你们躲进站前亮着灯的咖啡馆。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "这杯我请你——就当是伞的谢礼。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "你笑了。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"type": "story_ended"
+		}
+	],
+	"name": "chapter1_umbrella",
+	"schema": 1
+}

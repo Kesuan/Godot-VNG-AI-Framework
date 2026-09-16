@@ -1,0 +1,25 @@
+; Engine configuration file.
+; vng-demo：基于 Godot VNG AI Framework 的示例游戏工程。
+; 框架代码由 tools/demo sync 镜像，勿在镜像目录中编辑。
+
+config_version=5
+
+[application]
+
+config/name="vng-demo"
+config/description="AI Agent 驱动的视觉小说示例游戏（基于 Godot VNG AI Framework）"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.svg"
+run/main_scene="res://game/presentation/main.tscn"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

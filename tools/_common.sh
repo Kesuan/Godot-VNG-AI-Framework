@@ -38,3 +38,52 @@ vng_ensure_import() {
 		fi
 	fi
 }
+
+VNG_WATCHDOG_PID=""
+
+vng_kill_watchdog() {
+	if [[ -n "${VNG_WATCHDOG_PID:-}" ]]; then
+		kill "$VNG_WATCHDOG_PID" 2>/dev/null
+		VNG_WATCHDOG_PID=""
+	fi
+}
+
+vng_run_with_watchdog() {
+	local project="$1"
+	local script_path="$2"
+	shift 2
+	local watchdog_sec="${VNG_TEST_WATCHDOG_SEC:-1800}"
+
+	"$GODOT_BIN" --headless --no-header --path "$project" --script "$script_path" -- "$@" &
+	local runner_pid=$!
+
+	(
+		elapsed=0
+		while kill -0 "$runner_pid" 2>/dev/null; do
+			if [[ "$elapsed" -ge "$watchdog_sec" ]]; then
+				echo "runner 超过硬超时 ${watchdog_sec}s，强制终止（可用 VNG_TEST_WATCHDOG_SEC 调整）" >&2
+				pkill -P "$runner_pid" 2>/dev/null
+				kill -9 "$runner_pid" 2>/dev/null
+				break
+			fi
+			sleep 1
+			elapsed=$((elapsed + 1))
+		done
+	) &
+	VNG_WATCHDOG_PID=$!
+	local watchdog_pid=$VNG_WATCHDOG_PID
+
+	trap vng_kill_watchdog EXIT
+
+	wait "$runner_pid"
+	local code=$?
+
+	vng_kill_watchdog
+	wait "$watchdog_pid" 2>/dev/null
+
+	if [[ "$code" -gt 128 ]]; then
+		echo "runner 被信号终止（exit=${code}）" >&2
+		return 2
+	fi
+	return "$code"
+}

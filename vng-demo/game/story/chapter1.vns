@@ -1,0 +1,50 @@
+# 雨夜车站 · 第一章（第一条可玩切片）
+@chapter chapter1
+
+:: prologue
+@bg station_rain
+@bgm bgm_rain
+@sfx thunder
+@show rin normal left
+雨点砸在站台的顶棚上，风把雨丝吹进来。
+你收起伞，看见长椅旁站着一个湿透的女孩。
+rin: ……末班车，停运了。
+你犹豫了一下。
+* 把伞递过去 {not shared_umbrella} -> share_umbrella
+* 什么都不做 -> do_nothing
+
+:: share_umbrella
+@set shared_umbrella = true
+@show rin smile center
+你走过去，把伞倾向她那一侧。
+rin: 谢谢……我叫凛。
+-> platform
+
+:: do_nothing
+你把目光移向漆黑的铁轨。
+rin: ……
+雨声盖过了沉默。
+-> platform
+
+:: platform
+@bgm stop
+@sfx bell
+站台的广播响了起来。
+announcer: 由于暴雨，今晚所有列车停运，请改乘明早第一班。
+凛看向你。
+* 邀请她去咖啡馆避雨 {shared_umbrella} -> cafe_invite
+* 独自离开车站 -> leave_alone
+
+:: cafe_invite
+@bg cafe_night
+@bgm bgm_rain
+@show rin smile center
+你们躲进站前亮着灯的咖啡馆。
+rin: 这杯我请你——就当是伞的谢礼。
+你笑了。
+-> END
+
+:: leave_alone
+@hide rin
+你独自走进雨里。
+-> END

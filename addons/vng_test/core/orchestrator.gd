@@ -257,6 +257,7 @@ func _scan_engine_log(suites: Array, log_path: String) -> void:
 	if error_blocks.is_empty():
 		return
 	var count := error_blocks.size()
+	var first_block: String = error_blocks[0] if error_blocks.size() > 0 else ""
 	var matched := false
 	for suite in suites:
 		var suite_file: String = suite.get("file", "")
@@ -264,12 +265,12 @@ func _scan_engine_log(suites: Array, log_path: String) -> void:
 			continue
 		for block in error_blocks:
 			if (block as String).contains(suite_file):
-				_mark_engine_errors(suite, count, log_path)
+				_mark_engine_errors(suite, count, log_path, first_block)
 				matched = true
 				break
 	if not matched:
 		for suite in suites:
-			_mark_engine_errors(suite, count, log_path)
+			_mark_engine_errors(suite, count, log_path, first_block)
 
 
 func _error_blocks(text: String) -> PackedStringArray:
@@ -290,13 +291,16 @@ func _error_blocks(text: String) -> PackedStringArray:
 	return blocks
 
 
-func _mark_engine_errors(suite: Dictionary, count: int, log_path: String) -> void:
+func _mark_engine_errors(suite: Dictionary, count: int, log_path: String, first_block := "") -> void:
 	suite["engine_errors"] = count
 	if suite.get("status", "") in ["passed", "pending"]:
 		suite["status"] = "error"
+		var message := "engine reported %d script error(s); see %s" % [count, log_path]
+		if first_block != "":
+			message += "\n" + first_block
 		var setup_failures: Array = suite.get("setup_failures", [])
 		setup_failures.append({
-			"message": "engine reported %d script error(s); see %s" % [count, log_path],
+			"message": message,
 			"location": suite.get("file", ""),
 		})
 		suite["setup_failures"] = setup_failures

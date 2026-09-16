@@ -222,11 +222,12 @@ func _apply_set(step: Dictionary) -> void:
 
 
 func _apply_presentation(op: String, step: Dictionary) -> void:
+	var fade: float = float(step.get("fade", -1.0))
 	match op:
 		"bg":
 			var bg_asset: String = step.get("asset", "")
 			stage["bg"] = bg_asset
-			_emit("bg_changed", {"asset": bg_asset, "node": node_id, "step": step_index})
+			_emit("bg_changed", {"asset": bg_asset, "fade": fade, "node": node_id, "step": step_index})
 		"show":
 			var char_id: String = step.get("char", "")
 			var chars: Dictionary = stage["chars"]
@@ -235,6 +236,7 @@ func _apply_presentation(op: String, step: Dictionary) -> void:
 				"char": char_id,
 				"expr": step.get("expr", ""),
 				"pos": step.get("pos", ""),
+				"fade": fade,
 				"node": node_id,
 				"step": step_index,
 			})
@@ -242,7 +244,7 @@ func _apply_presentation(op: String, step: Dictionary) -> void:
 			var hide_id: String = step.get("char", "")
 			var hidden_chars: Dictionary = stage["chars"]
 			hidden_chars.erase(hide_id)
-			_emit("char_hidden", {"char": hide_id, "node": node_id, "step": step_index})
+			_emit("char_hidden", {"char": hide_id, "fade": fade, "node": node_id, "step": step_index})
 		"bgm":
 			var bgm_asset: String = step.get("asset", "")
 			stage["bgm"] = bgm_asset
@@ -258,11 +260,14 @@ func _visible_options(step: Dictionary) -> Array:
 		var option: Dictionary = raw[i]
 		var cond: String = option.get("cond", "")
 		if cond != "":
-			var result := VngCondition.evaluate_text(cond, state)
+			var undefined_names: Array = []
+			var result := VngCondition.evaluate_text(cond, state, undefined_names)
 			if not result.ok:
 				_warn("选项条件求值失败 [%s]: %s" % [cond, result.error])
 				continue
-			if not (result.value as bool):
+			for undefined_name in undefined_names:
+				_warn("条件 [%s] 引用了未定义变量 '%s'，按默认值处理（建议在剧本中初始化）" % [cond, undefined_name])
+			if result.value != true:
 				continue
 		var entry := option.duplicate(true)
 		entry["index"] = i

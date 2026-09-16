@@ -1,0 +1,14 @@
+{
+	"schema": 1,
+	"entry": "chapter1.prologue",
+	"chapters": ["chapter1"],
+	"characters": {
+		"rin": {"name": "凛"},
+		"announcer": {"name": "站务员"}
+	},
+	"assets": {
+		"bg": ["station_rain", "cafe_night"],
+		"bgm": ["bgm_rain"],
+		"sfx": ["thunder", "bell"]
+	}
+}

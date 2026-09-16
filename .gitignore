@@ -8,5 +8,10 @@ test-results/*
 # macOS
 .DS_Store
 
-# 暂缓接入：第一条可玩切片开始时移除此行（见 docs/plans/0001-test-framework-v1.md）
-vng-demo/
+# vng-demo：由 tools/demo sync 生成的框架镜像（勿手改；编辑请回仓库根目录）
+vng-demo/.godot/
+vng-demo/addons/vng_test/
+vng-demo/addons/vns/
+vng-demo/game/core/
+vng-demo/game/services/
+vng-demo/test-results/

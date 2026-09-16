@@ -50,10 +50,26 @@ func test_negative_number() -> void:
 	assert_true(VngCondition.evaluate_text("trust == -1", state).value)
 
 
-func test_undefined_identifier_is_error() -> void:
-	var result := VngCondition.evaluate_text("unknown_flag", _state())
-	assert_false(result.ok)
-	assert_true((result.error as String).contains("unknown_flag"))
+func test_undefined_identifier_defaults_to_falsy() -> void:
+	var undefined_names: Array = []
+	var result := VngCondition.evaluate_text("unknown_flag", _state(), undefined_names)
+	assert_true(result.ok)
+	assert_null(result.value)
+	assert_true(undefined_names.has("unknown_flag"))
+	assert_false(result.value == true)
+
+
+func test_undefined_in_not_is_false() -> void:
+	var result := VngCondition.evaluate_text("not unknown_flag", _state())
+	assert_true(result.ok)
+	assert_true(result.value == true)
+
+
+func test_undefined_var_in_comparison_is_zero() -> void:
+	assert_false(VngCondition.evaluate_text("unknown_var >= 1", _state()).value == true)
+	assert_true(VngCondition.evaluate_text("unknown_var <= 0", _state()).value == true)
+	assert_true(VngCondition.evaluate_text("unknown_var == 0", _state()).value == true)
+	assert_false(VngCondition.evaluate_text("unknown_flag == true", _state()).value == true)
 
 
 func test_parse_error() -> void:

@@ -63,36 +63,5 @@ if ! vng_ensure_import "$ROOT"; then
 	exit 2
 fi
 
-WATCHDOG_SEC="${VNG_TEST_WATCHDOG_SEC:-1800}"
-
-"$GODOT_BIN" --headless --no-header --path "$ROOT" --script res://addons/vng_test/cli/run_tests.gd -- "$@" &
-runner_pid=$!
-
-(
-	elapsed=0
-	while kill -0 "$runner_pid" 2>/dev/null; do
-		if [[ "$elapsed" -ge "$WATCHDOG_SEC" ]]; then
-			echo "tools/test: runner 超过硬超时 ${WATCHDOG_SEC}s，强制终止（可用 VNG_TEST_WATCHDOG_SEC 调整）" >&2
-			pkill -P "$runner_pid" 2>/dev/null
-			kill -9 "$runner_pid" 2>/dev/null
-			break
-		fi
-		sleep 1
-		elapsed=$((elapsed + 1))
-	done
-) &
-watchdog_pid=$!
-
-trap 'kill "$watchdog_pid" 2>/dev/null' EXIT
-
-wait "$runner_pid"
-code=$?
-
-kill "$watchdog_pid" 2>/dev/null
-wait "$watchdog_pid" 2>/dev/null
-
-if [[ "$code" -gt 128 ]]; then
-	echo "tools/test: runner 被信号终止（exit=${code}）" >&2
-	exit 2
-fi
-exit "$code"
+vng_run_with_watchdog "$ROOT" "res://addons/vng_test/cli/run_tests.gd" "$@"
+exit $?

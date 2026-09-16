@@ -20,11 +20,34 @@ func emit_event(type: String, data: Dictionary = {}) -> Dictionary:
 		entry["t"] = clock.now()
 	if recording:
 		_history.append(entry)
-	for listener in _listeners.get(type, []):
-		(listener as Callable).call(entry)
-	for listener in _listeners.get("*", []):
-		(listener as Callable).call(entry)
+	_dispatch(type, entry)
+	_dispatch("*", entry)
 	return entry
+
+
+func _dispatch(type: String, entry: Dictionary) -> void:
+	var listeners: Array = _listeners.get(type, [])
+	if listeners.is_empty():
+		return
+	var alive: Array = []
+	for listener in listeners:
+		var callable: Callable = listener
+		if callable.is_valid():
+			alive.append(callable)
+	_listeners[type] = alive
+	for callable in alive:
+		callable.call(entry)
+
+
+func listener_count(type: String = "*", include_dead := false) -> int:
+	var listeners: Array = _listeners.get(type, [])
+	if include_dead:
+		return listeners.size()
+	var count := 0
+	for listener in listeners:
+		if (listener as Callable).is_valid():
+			count += 1
+	return count
 
 
 func subscribe(type: String, listener: Callable) -> void:

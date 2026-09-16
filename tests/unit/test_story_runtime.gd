@@ -147,3 +147,31 @@ func test_invalid_choice_index_records_error() -> void:
 	runtime.choose(99)
 	assert_eq(runtime.errors.size(), 1)
 	assert_eq(runtime.waiting, VngStoryRuntime.WAITING_CHOICE)
+
+
+func test_presentation_events_carry_fade() -> void:
+	var chapter := {
+		"chapter": "fade_probe",
+		"nodes": {
+			"n": {
+				"id": "n",
+				"steps": [
+					{"op": "bg", "asset": "room", "fade": 0.5},
+					{"op": "show", "char": "rin", "expr": "smile", "pos": "center"},
+					{"op": "say", "who": "", "text": "你好"},
+					{"op": "goto", "target": "END"},
+				],
+			},
+		},
+	}
+	var services := VngServices.for_tests(1)
+	var runtime := VngStoryRuntime.new(services, chapter)
+	runtime.start("n")
+	var events := services.events.history()
+	var bg_event: Dictionary = events[1]
+	assert_eq(bg_event.get("type", ""), "bg_changed")
+	assert_eq(float(bg_event.get("data", {}).get("fade", 0.0)), 0.5)
+	var show_event: Dictionary = events[2]
+	assert_eq(show_event.get("type", ""), "char_shown")
+	assert_eq(float(show_event.get("data", {}).get("fade", 0.0)), -1.0)
+	assert_eq(runtime.errors.size(), 0)

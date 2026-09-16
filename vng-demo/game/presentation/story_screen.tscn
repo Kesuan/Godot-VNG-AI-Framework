@@ -1,0 +1,103 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://game/presentation/story_screen.gd" id="1_story"]
+[ext_resource type="Script" path="res://game/presentation/stage.gd" id="2_stage"]
+[ext_resource type="Script" path="res://game/presentation/audio_director.gd" id="3_audio"]
+
+[node name="StoryScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_story")
+
+[node name="Stage" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_stage")
+
+[node name="Background" type="ColorRect" parent="Stage"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.09, 0.1, 0.14, 1)
+
+[node name="BackgroundLabel" type="Label" parent="Stage"]
+offset_left = 24.0
+offset_top = 16.0
+offset_right = 560.0
+offset_bottom = 48.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+
+[node name="Characters" type="Control" parent="Stage"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = 120.0
+offset_top = 466.0
+offset_right = 620.0
+offset_bottom = 506.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="DialoguePanel" type="ColorRect" parent="."]
+offset_left = 80.0
+offset_top = 520.0
+offset_right = 1200.0
+offset_bottom = 672.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="TextLabel" type="Label" parent="DialoguePanel"]
+offset_left = 28.0
+offset_top = 18.0
+offset_right = 1092.0
+offset_bottom = 134.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 26
+autowrap_mode = 2
+
+[node name="ChoiceMenu" type="VBoxContainer" parent="."]
+offset_left = 460.0
+offset_top = 240.0
+offset_right = 820.0
+offset_bottom = 420.0
+theme_override_constants/separation = 12
+visible = false
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 860.0
+offset_top = 676.0
+offset_right = 1200.0
+offset_bottom = 706.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 16
+text = "点击 / 空格 继续    ESC 退出"
+horizontal_alignment = 2
+
+[node name="Fade" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="AudioDirector" type="Node" parent="."]
+script = ExtResource("3_audio")
+
+[node name="Bgm" type="AudioStreamPlayer" parent="AudioDirector"]
+
+[node name="Sfx" type="AudioStreamPlayer" parent="AudioDirector"]

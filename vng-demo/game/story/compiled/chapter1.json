@@ -1,0 +1,394 @@
+{
+	"chapter": "chapter1",
+	"nodes": {
+		"cafe_invite": {
+			"id": "cafe_invite",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 38
+			},
+			"steps": [
+				{
+					"asset": "cafe_night",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 39
+					}
+				},
+				{
+					"asset": "bgm_rain",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 40
+					}
+				},
+				{
+					"char": "rin",
+					"expr": "smile",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 41
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 42
+					},
+					"text": "你们躲进站前亮着灯的咖啡馆。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 43
+					},
+					"text": "这杯我请你——就当是伞的谢礼。",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 44
+					},
+					"text": "你笑了。",
+					"who": ""
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 45
+					},
+					"target": "END"
+				}
+			]
+		},
+		"do_nothing": {
+			"id": "do_nothing",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 23
+			},
+			"steps": [
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 24
+					},
+					"text": "你把目光移向漆黑的铁轨。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 25
+					},
+					"text": "……",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 26
+					},
+					"text": "雨声盖过了沉默。",
+					"who": ""
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 27
+					},
+					"target": "platform"
+				}
+			]
+		},
+		"leave_alone": {
+			"id": "leave_alone",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 47
+			},
+			"steps": [
+				{
+					"char": "rin",
+					"op": "hide",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 48
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 49
+					},
+					"text": "你独自走进雨里。",
+					"who": ""
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 50
+					},
+					"target": "END"
+				}
+			]
+		},
+		"platform": {
+			"id": "platform",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 29
+			},
+			"steps": [
+				{
+					"asset": "stop",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 30
+					}
+				},
+				{
+					"asset": "bell",
+					"op": "sfx",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 31
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 32
+					},
+					"text": "站台的广播响了起来。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 33
+					},
+					"text": "由于暴雨，今晚所有列车停运，请改乘明早第一班。",
+					"who": "announcer"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 34
+					},
+					"text": "凛看向你。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"cond": "shared_umbrella",
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 35
+							},
+							"target": "cafe_invite",
+							"text": "邀请她去咖啡馆避雨"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 36
+							},
+							"target": "leave_alone",
+							"text": "独自离开车站"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 35
+					}
+				}
+			]
+		},
+		"prologue": {
+			"id": "prologue",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 4
+			},
+			"steps": [
+				{
+					"asset": "station_rain",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 5
+					}
+				},
+				{
+					"asset": "bgm_rain",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 6
+					}
+				},
+				{
+					"asset": "thunder",
+					"op": "sfx",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 7
+					}
+				},
+				{
+					"char": "rin",
+					"expr": "normal",
+					"op": "show",
+					"pos": "left",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 8
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 9
+					},
+					"text": "雨点砸在站台的顶棚上，风把雨丝吹进来。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 10
+					},
+					"text": "你收起伞，看见长椅旁站着一个湿透的女孩。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 11
+					},
+					"text": "……末班车，停运了。",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 12
+					},
+					"text": "你犹豫了一下。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"cond": "not shared_umbrella",
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 13
+							},
+							"target": "share_umbrella",
+							"text": "把伞递过去"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter1.vns",
+								"line": 14
+							},
+							"target": "do_nothing",
+							"text": "什么都不做"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 13
+					}
+				}
+			]
+		},
+		"share_umbrella": {
+			"id": "share_umbrella",
+			"src": {
+				"file": "res://game/story/chapter1.vns",
+				"line": 16
+			},
+			"steps": [
+				{
+					"assign": "=",
+					"name": "shared_umbrella",
+					"op": "set",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 17
+					},
+					"value": true
+				},
+				{
+					"char": "rin",
+					"expr": "smile",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 18
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 19
+					},
+					"text": "你走过去，把伞倾向她那一侧。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 20
+					},
+					"text": "谢谢……我叫凛。",
+					"who": "rin"
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter1.vns",
+						"line": 21
+					},
+					"target": "platform"
+				}
+			]
+		}
+	},
+	"schema": 1,
+	"source": "res://game/story/chapter1.vns",
+	"source_hash": "a1196d98fc57d4cb613907c5f9a4cf43d97604a3ab0eda07acdf6965de348c76"
+}

@@ -22,6 +22,11 @@ AI Agent 驱动的视觉小说（VNG）开发框架。当前仓库是**框架开
 | `tools/story build` | 编译 `.vns` → `game/story/compiled/*.json`（含结构校验与 lint） |
 | `tools/story check` | 校验编译产物新鲜度（fast 测试已覆盖） |
 | `tools/story lint` | 剧本静态检查（跳转/flag/资源/角色/可达性） |
+| `tools/demo run` | 同步框架到 vng-demo 并启动游戏（体验用） |
+| `tools/demo test [参数]` | vng-demo 测试（参数与 `tools/test` 相同，含 `--update-traces`） |
+| `tools/demo story <build\|check\|lint>` | vng-demo 剧本工具 |
+| `tools/demo lint` | vng-demo 非确定性 API 扫描 |
+| `tools/demo sync` | 仅同步框架镜像 → vng-demo |
 
 环境变量：`GODOT_BIN`（Godot 路径，默认自动探测）、`VNG_TEST_WATCHDOG_SEC`（runner 兜底硬超时）。
 `tools/lint` 的 gdformat/gdlint 需 `pip3 install --user gdtoolkit`，未安装时自动跳过并提示；非确定性扫描始终执行。
@@ -100,6 +105,18 @@ play.expect_trace("chapter1_secret")
 - trace golden 存于 `tests/story/traces/*.trace.json`，记录**语义事件**（对白/选项/flag 变化/演出指令），不含行号与时间戳；插入新台词不会无故破坏基线。
 - golden 更新必须显式执行 `tools/test --update-traces`（禁止默认重录），审计写入 `test-results/trace-updates.log`；比对失败会在测试信息中给出文本 diff。
 
+## 游戏工程（vng-demo）
+
+- 游戏专属代码只在：`vng-demo/game/presentation/`、`vng-demo/game/story/`、`vng-demo/tests/`。
+- 框架镜像（**禁止手改**，由 `tools/demo sync` 生成并 gitignore）：`vng-demo/addons/{vng_test,vns}`、`vng-demo/game/{core,services}`；镜像目录带 `.vng-mirror` 标记。
+- 改动框架后必须两侧验证：仓库根 `tools/test` 与 `tools/demo test` 都绿。
+- 表现层约定：只订阅 `services.events` 与推送 `VngCommand`，不直接改 core 状态；剧情屏通过 `story_screen.setup(services, chapter, node, display_names)` 注入（boot smoke 测试依赖该入口）。
+- **表现层测试必须走真实输入路径**：用 `addons/vng_test/dsl/input_sim.gd` 的 `click(tree)` / `press_action(tree, "ui_accept")`，不要直接调用场景内部方法；headless 下窗口尺寸会被重置，helper 已处理（见 [decision 0004](docs/decision/0004-presentation-testing.md)）。
+- **场景类测试必须覆盖重入**（完成 → 销毁 → 重进）：事件订阅在 `_exit_tree` 解除；总线对失效 Callable 自动剪除，可用 `listener_count(type, true)` 断言原始槽位。
+- 修复类改动做"回退验证"：临时还原修复确认用例变红，防止测试失效。
+- 游戏剧本改动后运行 `tools/demo story build`；`vng-demo/tests/unit` 会校验产物新鲜度。
+- 手动验收清单见 `vng-demo/README.md`；表现层回归依赖人工体验（V1 政策）。
+
 ## 进程模型与报告
 
 - 默认：所有非 `story/` 文件在**一个批量子进程**内顺序执行；`tests/story/` 每文件独立子进程；`--jobs N` 并行；父进程聚合。
@@ -110,10 +127,12 @@ play.expect_trace("chapter1_secret")
 ## 目录约定
 
 ```
-tools/test              # 统一 CLI 入口
+tools/test              # 统一 CLI 入口（仓库根工程）
 tools/lint              # 格式/静态/非确定性扫描
+tools/story             # 剧本 CLI（仓库根工程）
+tools/demo              # 游戏侧统一入口：sync / test / story / lint / run
 addons/vng_test/        # 测试框架：core（runner/断言/发现/看门狗）/ reporters / dsl / lint / cli
-addons/vns/             # 剧本格式：parser / validator / emitter / 运行时模型（P3）
+addons/vns/             # 剧本格式：parser / validator / emitter / 运行时模型 + 编译产物加载器
 tests/unit/             # L0 纯逻辑（fast）
 tests/meta/             # runner 自身契约测试（fixtures/ 为子进程夹具，自动跳过发现）
 tests/story/            # L1 剧本级 E2E（每文件独立进程）
@@ -121,10 +140,14 @@ tests/story/traces/     # trace golden（语义事件，提交入库）
 tests/fixtures/         # 共享夹具（如 sample_chapter.gd），自动跳过发现
 game/core/              # 纯 GDScript 状态机（零 Node 依赖）
 game/services/          # RngService / Clock / InputHub / EventBus（接口 + real + fake）
-game/presentation/      # 节点/动画/音频，只订阅 core 事件（P3+）
-game/story/             # .vns 源文件 + story.json 清单（P3）
-game/story/compiled/    # 编译产物（提交入库，--check 校验新鲜度，P3）
+game/story/             # 框架示例剧本（框架自测用）
+game/presentation/      # 框架侧表现层占位（游戏表现层在 vng-demo）
 test-results/           # 运行产物，不入库
+vng-demo/               # 游戏工程（见「游戏工程」小节）
+├── game/presentation/  # 标题/剧情屏/舞台/对白/选项/音频
+├── game/story/         # 游戏剧本 + compiled/
+├── tests/              # 游戏测试（story/smoke/unit）
+└── addons/, game/{core,services}/   # 框架镜像（gitignore）
 ```
 
 ## 开发约定
@@ -140,10 +163,10 @@ test-results/           # 运行产物，不入库
 
 ## 关键文档
 
-- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[docs/decision/0002-story-dsl.md](docs/decision/0002-story-dsl.md)
+- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[docs/decision/0002-story-dsl.md](docs/decision/0002-story-dsl.md)、[docs/decision/0003-game-project-structure.md](docs/decision/0003-game-project-structure.md)、[docs/decision/0004-presentation-testing.md](docs/decision/0004-presentation-testing.md)
 - 计划：[docs/plans/0001-test-framework-v1.md](docs/plans/0001-test-framework-v1.md)
 
 ## 当前阶段
 
-Phase 3（剧本 DSL 编译器 + Linter + trace golden）已完成：`.vns` 解析/校验/编译（含行号溯源与 did-you-mean）、图分析 lint、playthrough DSL、trace golden（含 `--update-traces` 审计）、`tools/story` CLI、示例剧本 `game/story/chapter1.vns` 与 story 级测试。
-下一步：第一条可玩切片（从 `vng-demo/` 接入，presentation 层 + 真实游戏工程）。
+第一条可玩切片已完成并完成首轮体验修复：`vng-demo/` 游戏工程（标题 → 演出 → 选项分支 → END 回标题）、框架单向镜像与 `tools/demo` CLI、占位演出、静音音频接口、游戏剧本《雨夜车站》、story/trace/smoke/输入路径测试。
+下一步候选：存档 UI、真实美术/音频接入、多章节运行时、`vng-demo` 导出配置、场景语义断言库。

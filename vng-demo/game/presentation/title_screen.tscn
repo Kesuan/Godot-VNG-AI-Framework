@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/presentation/title_screen.gd" id="1_title"]
+
+[node name="TitleScreen" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_title")
+
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.07, 0.08, 0.11, 1)
+
+[node name="Title" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 200.0
+offset_right = 1280.0
+offset_bottom = 280.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 52
+text = "雨夜车站"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="."]
+offset_left = 0.0
+offset_top = 290.0
+offset_right = 1280.0
+offset_bottom = 330.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+text = "—— 第一条可玩切片 ——"
+horizontal_alignment = 1
+
+[node name="StartButton" type="Button" parent="."]
+offset_left = 540.0
+offset_top = 400.0
+offset_right = 740.0
+offset_bottom = 448.0
+text = "开始游戏"
+
+[node name="QuitButton" type="Button" parent="."]
+offset_left = 540.0
+offset_top = 468.0
+offset_right = 740.0
+offset_bottom = 516.0
+text = "退出"

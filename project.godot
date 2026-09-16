@@ -1,6 +1,6 @@
 ; Engine configuration file.
 ; 本工程为框架开发工程：承载测试框架、剧本 DSL 与其自测；不设置主场景。
-; 游戏本体在第一条可玩切片开始时接入（见 docs/plans/0001-test-framework-v1.md）。
+; 游戏工程在 vng-demo/（由 tools/demo 接入，见 docs/decision/0003）。
 
 config_version=5
 

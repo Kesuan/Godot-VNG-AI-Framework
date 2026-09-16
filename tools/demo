@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEMO="$ROOT/vng-demo"
+# shellcheck source=/dev/null
+source "$ROOT/tools/_common.sh"
+
+FRAMEWORK_MIRRORS=(
+	"addons/vng_test"
+	"addons/vns"
+	"game/core"
+	"game/services"
+)
+
+usage() {
+	cat <<'EOF'
+用法: tools/demo <sync|test|story|lint|run> [参数]
+
+命令:
+  sync                       仅同步框架代码 → vng-demo（镜像目录勿手改）
+  test [runner 参数...]      同步后运行 vng-demo 的测试（参数同 tools/test）
+  story <build|check|lint>   同步后运行剧本工具（作用于 vng-demo/game/story）
+  lint                       同步后扫描 vng-demo/game 的非确定性 API
+  run                        同步后启动游戏窗口（体验用）
+
+说明:
+  - 镜像目录: addons/vng_test, addons/vns, game/core, game/services
+    （由 sync 生成并在版本控制中忽略；编辑框架请回仓库根目录对应路径）
+退出码: 与底层命令一致（tools/test 契约: 0/1/2/3）
+EOF
+}
+
+vng_demo_sync() {
+	if ! command -v rsync >/dev/null 2>&1; then
+		echo "tools/demo: 需要 rsync（macOS 自带）" >&2
+		return 1
+	fi
+	local rel src dst
+	for rel in "${FRAMEWORK_MIRRORS[@]}"; do
+		src="$ROOT/$rel"
+		dst="$DEMO/$rel"
+		mkdir -p "$dst"
+		rsync -a --delete "$src/" "$dst/"
+		printf '本目录由 tools/demo sync 从框架镜像生成，请勿直接编辑；修改请回框架仓库对应路径。\n' > "$dst/.vng-mirror"
+	done
+}
+
+require_godot_and_sync() {
+	if ! vng_resolve_godot; then
+		exit 2
+	fi
+	if ! vng_demo_sync; then
+		exit 2
+	fi
+	if ! vng_ensure_import "$DEMO"; then
+		exit 2
+	fi
+}
+
+command="${1:-}"
+case "$command" in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	sync)
+		require_godot_and_sync
+		echo "已同步框架 → vng-demo（${#FRAMEWORK_MIRRORS[@]} 个目录）"
+		;;
+	test)
+		shift
+		require_godot_and_sync
+		vng_run_with_watchdog "$DEMO" "res://addons/vng_test/cli/run_tests.gd" "$@"
+		exit $?
+		;;
+	story)
+		shift
+		require_godot_and_sync
+		exec "$GODOT_BIN" --headless --no-header --path "$DEMO" --script res://addons/vns/cli/story_cli.gd -- "$@"
+		;;
+	lint)
+		require_godot_and_sync
+		echo "[demo lint] 非确定性 API 扫描（res://game）"
+		exec "$GODOT_BIN" --headless --no-header --path "$DEMO" --script res://addons/vng_test/cli/lint_source.gd -- --root res://game
+		;;
+	run)
+		require_godot_and_sync
+		exec "$GODOT_BIN" --path "$DEMO"
+		;;
+	*)
+		usage
+		exit 2
+		;;
+esac

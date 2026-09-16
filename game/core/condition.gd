@@ -19,7 +19,7 @@ static func parse(text: String) -> Dictionary:
 	return {"ok": true, "error": "", "ast": ast}
 
 
-static func evaluate(ast: Variant, state: VngStoryState) -> Dictionary:
+static func evaluate(ast: Variant, state: VngStoryState, undefined_names: Array = []) -> Dictionary:
 	if ast == null or not (ast is Dictionary):
 		return {"ok": false, "value": false, "error": "空表达式"}
 	var kind: String = ast.get("k", "")
@@ -27,57 +27,68 @@ static func evaluate(ast: Variant, state: VngStoryState) -> Dictionary:
 		"lit":
 			return {"ok": true, "value": ast.get("v", null), "error": ""}
 		"ident":
-			return _resolve_identifier(ast.get("v", ""), state)
+			return _resolve_identifier(ast.get("v", ""), state, undefined_names)
 		"not":
-			var inner := evaluate(ast.get("x", null), state)
+			var inner := evaluate(ast.get("x", null), state, undefined_names)
 			if not inner.ok:
 				return inner
-			if not (inner.value is bool):
+			var inner_value: Variant = inner.value
+			if inner_value == null:
+				inner_value = false
+			if not (inner_value is bool):
 				return {"ok": false, "value": false, "error": "'not' 需要布尔值"}
-			return {"ok": true, "value": not (inner.value as bool), "error": ""}
+			return {"ok": true, "value": not (inner_value as bool), "error": ""}
 		"and", "or":
-			return _evaluate_logical(kind, ast, state)
+			return _evaluate_logical(kind, ast, state, undefined_names)
 		"cmp":
-			return _evaluate_comparison(ast, state)
+			return _evaluate_comparison(ast, state, undefined_names)
 	return {"ok": false, "value": false, "error": "未知表达式节点 '%s'" % kind}
 
 
-static func evaluate_text(text: String, state: VngStoryState) -> Dictionary:
+static func evaluate_text(text: String, state: VngStoryState, undefined_names: Array = []) -> Dictionary:
 	var parsed := parse(text)
 	if not parsed.ok:
 		return {"ok": false, "value": false, "error": parsed.error}
-	return evaluate(parsed.ast, state)
+	return evaluate(parsed.ast, state, undefined_names)
 
 
-static func _evaluate_logical(kind: String, ast: Dictionary, state: VngStoryState) -> Dictionary:
-	var left := evaluate(ast.get("l", null), state)
+static func _evaluate_logical(kind: String, ast: Dictionary, state: VngStoryState, undefined_names: Array) -> Dictionary:
+	var left := evaluate(ast.get("l", null), state, undefined_names)
 	if not left.ok:
 		return left
-	if not (left.value is bool):
+	var left_value: Variant = left.value
+	if left_value == null:
+		left_value = false
+	if not (left_value is bool):
 		return {"ok": false, "value": false, "error": "'%s' 需要布尔值" % kind}
-	if kind == "and" and not (left.value as bool):
+	if kind == "and" and not (left_value as bool):
 		return {"ok": true, "value": false, "error": ""}
-	if kind == "or" and (left.value as bool):
+	if kind == "or" and (left_value as bool):
 		return {"ok": true, "value": true, "error": ""}
-	var right := evaluate(ast.get("r", null), state)
+	var right := evaluate(ast.get("r", null), state, undefined_names)
 	if not right.ok:
 		return right
-	if not (right.value is bool):
+	var right_value: Variant = right.value
+	if right_value == null:
+		right_value = false
+	if not (right_value is bool):
 		return {"ok": false, "value": false, "error": "'%s' 需要布尔值" % kind}
-	return {"ok": true, "value": right.value, "error": ""}
+	return {"ok": true, "value": right_value, "error": ""}
 
 
-static func _evaluate_comparison(ast: Dictionary, state: VngStoryState) -> Dictionary:
-	var left := evaluate(ast.get("l", null), state)
+static func _evaluate_comparison(ast: Dictionary, state: VngStoryState, undefined_names: Array) -> Dictionary:
+	var left := evaluate(ast.get("l", null), state, undefined_names)
 	if not left.ok:
 		return left
-	var right := evaluate(ast.get("r", null), state)
+	var right := evaluate(ast.get("r", null), state, undefined_names)
 	if not right.ok:
 		return right
-	var lv: Variant = left.value
-	var rv: Variant = right.value
+	var lv: Variant = _default_if_undefined(left.value, right.value)
+	var rv: Variant = _default_if_undefined(right.value, left.value)
 	var op: String = ast.get("op", "")
 	if op == "==" or op == "!=":
+		if lv == null or rv == null:
+			return {"ok": false, "value": false, "error": "'%s' 无法比较空值" % op}
 		if typeof(lv) != typeof(rv) and not (_is_number(lv) and _is_number(rv)):
 			return {"ok": false, "value": false, "error": "'%s' 两侧类型不一致" % op}
 		var equal: bool = lv == rv
@@ -98,12 +109,26 @@ static func _evaluate_comparison(ast: Dictionary, state: VngStoryState) -> Dicti
 	return {"ok": false, "value": false, "error": "未知比较运算 '%s'" % op}
 
 
-static func _resolve_identifier(name: String, state: VngStoryState) -> Dictionary:
+static func _default_if_undefined(value: Variant, other: Variant) -> Variant:
+	if value != null:
+		return value
+	if other == null:
+		return false
+	if _is_number(other):
+		return 0
+	if other is bool:
+		return false
+	return null
+
+
+static func _resolve_identifier(name: String, state: VngStoryState, undefined_names: Array) -> Dictionary:
 	if state.flags.has(name):
 		return {"ok": true, "value": state.flags[name], "error": ""}
 	if state.vars.has(name):
 		return {"ok": true, "value": state.vars[name], "error": ""}
-	return {"ok": false, "value": false, "error": "未定义标识符 '%s'" % name}
+	if not undefined_names.has(name):
+		undefined_names.append(name)
+	return {"ok": true, "value": null, "error": ""}
 
 
 static func _is_number(value: Variant) -> bool:
