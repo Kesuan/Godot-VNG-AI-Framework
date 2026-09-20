@@ -5,15 +5,16 @@
 
 ## 进度
 
-- [ ] `bg/station_rain`（背景 · 雨夜站台）
-- [ ] `bg/cafe_night`（背景 · 夜晚咖啡馆）
-- [ ] `char/rin/normal`（立绘 · 平静）
-- [ ] `char/rin/smile`（立绘 · 微笑）
+- [x] `bg/station_rain`（背景 · 雨夜站台）
+- [x] `bg/cafe_night`（背景 · 夜晚咖啡馆）
+- [x] `char/rin/normal`（立绘 · 平静）
+- [x] `char/rin/smile`（立绘 · 微笑）
+- [x] `char/rin/default`（P1 兜底 · 已投放）
 - [ ] `bgm/bgm_rain`（BGM · 雨夜主题）
 - [ ] `sfx/thunder`（音效 · 闷雷）
 - [ ] `sfx/bell`（音效 · 站台提示铃）
 
-只放 `char/rin/default.png`（可直接复制 normal）即可让立绘全部先跑起来；任意素材缺失都会自动回退占位，可分批投放。
+视觉素材已就位（4/7 + 兜底）；仅剩音频 3 项待投放，不影响运行（静音回退）。任意素材缺失都会自动回退占位，可分批投放。
 
 ## 一、风格基调（务必统一）
 
