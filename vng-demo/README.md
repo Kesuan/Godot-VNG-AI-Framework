@@ -54,6 +54,7 @@ vng-demo/assets/
 ```
 
 - 查看还缺什么：`tools/demo assets`（`--strict` 缺失即非零退出；`--json` 结构化输出）
+- 完整需求清单（尺寸/风格/提示词/验收）：[ASSETS.md](ASSETS.md)
 - 投放后无需改代码或重新导入，直接 `tools/demo run` 生效；缺失项自动回退占位
 - 当前待投放清单（7 项）：`bg/station_rain`、`bg/cafe_night`、`char/rin/normal`、`char/rin/smile`、`bgm/bgm_rain`、`sfx/thunder`、`sfx/bell`
 - 捷径：只放 `char/rin/default.png` 也能先跑（所有表情回退到它）
