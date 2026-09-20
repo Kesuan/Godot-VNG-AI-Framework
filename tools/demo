@@ -21,6 +21,7 @@ usage() {
   sync                       仅同步框架代码 → vng-demo（镜像目录勿手改）
   test [runner 参数...]      同步后运行 vng-demo 的测试（参数同 tools/test）
   story <build|check|lint>   同步后运行剧本工具（作用于 vng-demo/game/story）
+  assets [--strict] [--json] 同步后列出资源就位情况（缺失项即待投放清单）
   lint                       同步后扫描 vng-demo/game 的非确定性 API
   run                        同步后启动游戏窗口（体验用）
 
@@ -78,6 +79,11 @@ case "$command" in
 		shift
 		require_godot_and_sync
 		exec "$GODOT_BIN" --headless --no-header --path "$DEMO" --script res://addons/vns/cli/story_cli.gd -- "$@"
+		;;
+	assets)
+		shift
+		require_godot_and_sync
+		exec "$GODOT_BIN" --headless --no-header --path "$DEMO" --script res://addons/vns/cli/story_cli.gd -- assets --story-dir res://game/story "$@"
 		;;
 	lint)
 		require_godot_and_sync

@@ -7,17 +7,21 @@ source "$ROOT/tools/_common.sh"
 
 usage() {
 	cat <<'EOF'
-用法: tools/story <build|check|lint> [--story-dir <目录>]
+用法: tools/story <build|check|lint|assets> [选项]
 
 命令:
   build   编译 .vns → compiled/*.json（含结构校验与 lint）
   check   校验编译产物是否最新
   lint    仅做结构与图分析检查
+  assets  资源就位报告（--strict 时缺失即失败）
 
 选项:
-  --story-dir <dir>  剧本目录（默认 res://game/story）
+  --story-dir <dir>    剧本目录（默认 res://game/story）
+  --asset-root <dir>   资源根目录（默认 res://assets）
+  --strict             缺失资源时非零退出
+  --json               JSON 输出
 
-退出码: 0 通过 / 1 有错误 / 2 框架错误
+退出码: 0 通过 / 1 有错误或缺失（--strict）/ 2 框架错误
 EOF
 }
 

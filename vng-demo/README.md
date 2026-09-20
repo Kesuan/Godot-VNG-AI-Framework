@@ -42,6 +42,22 @@ vng-demo/
 - [ ] ESC 可退出；全程无脚本报错
 - [ ] `tools/demo test` 全绿；`tools/demo story check` 通过
 
+## 资源投放（真实美术/音频）
+
+约定见 [docs/decision/0005](../docs/decision/0005-asset-pipeline.md)。目录：
+
+```
+vng-demo/assets/
+├── bg/<id>.png|webp|jpg             # 背景（铺满）
+├── char/<角色>/<表情>.png|webp|jpg   # 立绘（透明底；缺省回退 default.<ext>）
+└── audio/{bgm,sfx}/<id>.ogg|wav     # 音频
+```
+
+- 查看还缺什么：`tools/demo assets`（`--strict` 缺失即非零退出；`--json` 结构化输出）
+- 投放后无需改代码或重新导入，直接 `tools/demo run` 生效；缺失项自动回退占位
+- 当前待投放清单（7 项）：`bg/station_rain`、`bg/cafe_night`、`char/rin/normal`、`char/rin/smile`、`bgm/bgm_rain`、`sfx/thunder`、`sfx/bell`
+- 捷径：只放 `char/rin/default.png` 也能先跑（所有表情回退到它）
+
 ## 已知限制（切片范围外）
 
 - 无存档/读档与设置界面；无音频资源（`assets/audio/` 空，缺资源静默）

@@ -2,20 +2,25 @@ extends SceneTree
 
 const Util := preload("res://addons/vns/vns_util.gd")
 const Compiler := preload("res://addons/vns/vns_compiler.gd")
+const AssetReport := preload("res://addons/vns/vns_asset_report.gd")
 
 const USAGE := """剧本工具
 
-用法: tools/story <build|check|lint> [--story-dir <目录>]
+用法: tools/story <build|check|lint|assets> [选项]
 
 命令:
   build   编译 .vns → compiled/*.json（含结构校验与 lint）
   check   校验编译产物是否最新（源文件已改未重编则报错）
   lint    仅做结构与图分析检查，不写文件
+  assets  资源就位报告（缺失默认不影响退出码，--strict 时失败）
 
 选项:
-  --story-dir <dir>  剧本目录（默认 res://game/story）
+  --story-dir <dir>    剧本目录（默认 res://game/story）
+  --asset-root <dir>   资源根目录（默认 res://assets）
+  --strict             缺失资源时以退出码 1 结束
+  --json               以 JSON 输出报告
 
-退出码: 0 通过 / 1 有错误 / 2 参数错误
+退出码: 0 通过 / 1 有错误或缺失（--strict）/ 2 参数错误
 """
 
 
@@ -30,27 +35,41 @@ func _run() -> void:
 		quit(0)
 		return
 	var command: String = args[0]
-	if not ["build", "check", "lint"].has(command):
+	if not ["build", "check", "lint", "assets"].has(command):
 		printerr("未知命令: %s" % command)
 		printerr(USAGE)
 		quit(2)
 		return
 	var story_dir := "res://game/story"
+	var asset_root := "res://assets"
+	var strict := false
+	var json_output := false
 	var i := 1
 	while i < args.size():
-		if args[i] == "--story-dir":
-			if i + 1 >= args.size():
-				printerr("--story-dir 缺少值")
+		match args[i]:
+			"--story-dir", "--asset-root":
+				if i + 1 >= args.size():
+					printerr("%s 缺少值" % args[i])
+					quit(2)
+					return
+				if args[i] == "--story-dir":
+					story_dir = args[i + 1]
+				else:
+					asset_root = args[i + 1]
+				i += 2
+			"--strict":
+				strict = true
+				i += 1
+			"--json":
+				json_output = true
+				i += 1
+			_:
+				printerr("未知参数: %s" % args[i])
+				printerr(USAGE)
 				quit(2)
 				return
-			story_dir = args[i + 1]
-			i += 2
-			continue
-		printerr("未知参数: %s" % args[i])
-		printerr(USAGE)
-		quit(2)
-		return
 	story_dir = story_dir.rstrip("/")
+	asset_root = asset_root.rstrip("/")
 
 	match command:
 		"build":
@@ -81,6 +100,27 @@ func _run() -> void:
 				return
 			print("lint 通过（%d warnings）" % result.warnings.size())
 			quit(0)
+		"assets":
+			_run_assets(story_dir, asset_root, strict, json_output)
+
+
+func _run_assets(story_dir: String, asset_root: String, strict: bool, json_output: bool) -> void:
+	var compiled := Compiler.compile_story(story_dir)
+	_report(compiled)
+	if not compiled.errors.is_empty():
+		quit(1)
+		return
+	var report := AssetReport.build(compiled.chapters, compiled.manifest, asset_root)
+	if json_output:
+		print(JSON.stringify(report, "\t", true))
+	else:
+		print(AssetReport.format(report))
+	var missing: int = report.summary.get("missing", 0)
+	if strict and missing > 0:
+		printerr("有 %d 项资源未就位（--strict）" % missing)
+		quit(1)
+		return
+	quit(0)
 
 
 func _report(result: Dictionary) -> void:

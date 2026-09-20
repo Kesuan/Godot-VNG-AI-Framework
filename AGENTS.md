@@ -22,9 +22,11 @@ AI Agent 驱动的视觉小说（VNG）开发框架。当前仓库是**框架开
 | `tools/story build` | 编译 `.vns` → `game/story/compiled/*.json`（含结构校验与 lint） |
 | `tools/story check` | 校验编译产物新鲜度（fast 测试已覆盖） |
 | `tools/story lint` | 剧本静态检查（跳转/flag/资源/角色/可达性） |
+| `tools/story assets` | 资源就位报告（`--strict` 缺失即失败、`--json` 结构化） |
 | `tools/demo run` | 同步框架到 vng-demo 并启动游戏（体验用） |
 | `tools/demo test [参数]` | vng-demo 测试（参数与 `tools/test` 相同，含 `--update-traces`） |
 | `tools/demo story <build\|check\|lint>` | vng-demo 剧本工具 |
+| `tools/demo assets` | vng-demo 资源就位报告（待投放清单） |
 | `tools/demo lint` | vng-demo 非确定性 API 扫描 |
 | `tools/demo sync` | 仅同步框架镜像 → vng-demo |
 
@@ -114,6 +116,7 @@ play.expect_trace("chapter1_secret")
 - **表现层测试必须走真实输入路径**：用 `addons/vng_test/dsl/input_sim.gd` 的 `click(tree)` / `press_action(tree, "ui_accept")`，不要直接调用场景内部方法；headless 下窗口尺寸会被重置，helper 已处理（见 [decision 0004](docs/decision/0004-presentation-testing.md)）。
 - **场景类测试必须覆盖重入**（完成 → 销毁 → 重进）：事件订阅在 `_exit_tree` 解除；总线对失效 Callable 自动剪除，可用 `listener_count(type, true)` 断言原始槽位。
 - 修复类改动做"回退验证"：临时还原修复确认用例变红，防止测试失效。
+- **资源管线**（见 [decision 0005](docs/decision/0005-asset-pipeline.md)）：素材放 `vng-demo/assets/{bg,char/<角色>,audio/{bgm,sfx}}/`；回退链"真实文件 → 立绘 default → 占位"；候选规则集中在 `addons/vns/vns_asset_paths.gd`；投放后无需改代码，`tools/demo assets` 可查缺；测试用运行时生成的 `user://` 资源，不引入二进制 fixture。
 - 游戏剧本改动后运行 `tools/demo story build`；`vng-demo/tests/unit` 会校验产物新鲜度。
 - 手动验收清单见 `vng-demo/README.md`；表现层回归依赖人工体验（V1 政策）。
 
@@ -163,10 +166,10 @@ vng-demo/               # 游戏工程（见「游戏工程」小节）
 
 ## 关键文档
 
-- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[docs/decision/0002-story-dsl.md](docs/decision/0002-story-dsl.md)、[docs/decision/0003-game-project-structure.md](docs/decision/0003-game-project-structure.md)、[docs/decision/0004-presentation-testing.md](docs/decision/0004-presentation-testing.md)
+- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[0002](docs/decision/0002-story-dsl.md)、[0003](docs/decision/0003-game-project-structure.md)、[0004](docs/decision/0004-presentation-testing.md)、[0005](docs/decision/0005-asset-pipeline.md)
 - 计划：[docs/plans/0001-test-framework-v1.md](docs/plans/0001-test-framework-v1.md)
 
 ## 当前阶段
 
-第一条可玩切片已完成并完成首轮体验修复：`vng-demo/` 游戏工程（标题 → 演出 → 选项分支 → END 回标题）、框架单向镜像与 `tools/demo` CLI、占位演出、静音音频接口、游戏剧本《雨夜车站》、story/trace/smoke/输入路径测试。
-下一步候选：存档 UI、真实美术/音频接入、多章节运行时、`vng-demo` 导出配置、场景语义断言库。
+第一条可玩切片已完成并完成首轮体验修复；资源管线机制已就位（目录约定/回退链/就位报告/双轨舞台），零素材兼容、投放即生效。
+下一步候选：存档/读档与多章节运行时、真实美术/音频素材投放、`vng-demo` 导出配置、场景语义断言库。

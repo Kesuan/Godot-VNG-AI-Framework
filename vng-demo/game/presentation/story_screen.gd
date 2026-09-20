@@ -4,6 +4,7 @@ signal finished
 
 const StageScript := preload("res://game/presentation/stage.gd")
 const AudioDirectorScript := preload("res://game/presentation/audio_director.gd")
+const AssetLibraryScript := preload("res://game/presentation/asset_library.gd")
 
 var typewriter_cps := 45.0
 
@@ -18,6 +19,7 @@ var typewriter_cps := 45.0
 var services: VngServices
 var runtime: VngStoryRuntime
 var display_names: Dictionary = {}
+var assets: AssetLibraryScript = null
 
 var _setup_args: Dictionary = {}
 var _typing := false
@@ -26,18 +28,29 @@ var _visible_chars := 0.0
 var _fade_tween: Tween = null
 
 
-func setup(p_services: VngServices, chapter: Dictionary, start_node: String, p_display_names: Dictionary = {}) -> void:
+func setup(
+	p_services: VngServices,
+	chapter: Dictionary,
+	start_node: String,
+	p_display_names: Dictionary = {},
+	p_asset_library: AssetLibraryScript = null
+) -> void:
 	_setup_args = {"services": p_services, "chapter": chapter, "node": start_node}
 	display_names = p_display_names
+	assets = p_asset_library
 
 
 func _ready() -> void:
 	if _setup_args.is_empty():
 		return
+	if assets == null:
+		assets = AssetLibraryScript.new()
 	services = _setup_args.services
 	services.input.clear()
 	services.events.clear()
 	services.events.subscribe("*", _on_event)
+	_stage.assets = assets
+	_audio.assets = assets
 	runtime = VngStoryRuntime.new(services, _setup_args.chapter)
 	_fade.modulate.a = 1.0
 	runtime.start(_setup_args.node)
