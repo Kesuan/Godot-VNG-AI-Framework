@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://game/presentation/story_screen.gd" id="1_story"]
 [ext_resource type="Script" path="res://game/presentation/stage.gd" id="2_stage"]
 [ext_resource type="Script" path="res://game/presentation/audio_director.gd" id="3_audio"]
+[ext_resource type="PackedScene" path="res://game/presentation/menu_overlay.tscn" id="4_menu"]
 
 [node name="StoryScreen" type="Control"]
 anchor_right = 1.0
@@ -93,8 +94,18 @@ offset_right = 1200.0
 offset_bottom = 706.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 16
-text = "点击 / 空格 继续    ESC 退出"
+text = "点击 / 空格 继续    ESC 菜单"
 horizontal_alignment = 2
+
+[node name="ChapterCard" type="Label" parent="."]
+modulate = Color(1, 1, 1, 0)
+offset_left = 0.0
+offset_top = 84.0
+offset_right = 1280.0
+offset_bottom = 134.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 34
+horizontal_alignment = 1
 
 [node name="Fade" type="ColorRect" parent="."]
 modulate = Color(1, 1, 1, 0)
@@ -104,6 +115,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
+
+[node name="MenuOverlay" parent="." instance=ExtResource("4_menu")]
 
 [node name="AudioDirector" type="Node" parent="."]
 script = ExtResource("3_audio")

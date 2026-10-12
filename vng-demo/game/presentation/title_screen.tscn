@@ -39,14 +39,28 @@ horizontal_alignment = 1
 
 [node name="StartButton" type="Button" parent="."]
 offset_left = 540.0
-offset_top = 400.0
+offset_top = 352.0
 offset_right = 740.0
-offset_bottom = 448.0
+offset_bottom = 400.0
 text = "开始游戏"
+
+[node name="ContinueButton" type="Button" parent="."]
+offset_left = 540.0
+offset_top = 412.0
+offset_right = 740.0
+offset_bottom = 460.0
+text = "继续游戏"
+
+[node name="LoadButton" type="Button" parent="."]
+offset_left = 540.0
+offset_top = 472.0
+offset_right = 740.0
+offset_bottom = 520.0
+text = "读取存档"
 
 [node name="QuitButton" type="Button" parent="."]
 offset_left = 540.0
-offset_top = 468.0
+offset_top = 532.0
 offset_right = 740.0
-offset_bottom = 516.0
+offset_bottom = 580.0
 text = "退出"

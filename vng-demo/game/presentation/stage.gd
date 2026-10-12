@@ -20,6 +20,18 @@ var _char_panels := {}
 var _char_states := {}
 
 
+func reset() -> void:
+	_current_bg = ""
+	_background_image.texture = null
+	_background_image.visible = false
+	_background_label.text = ""
+	_background_label.visible = true
+	for panel in _char_panels.values():
+		(panel as Node).queue_free()
+	_char_panels.clear()
+	_char_states.clear()
+
+
 func show_bg(data: Dictionary) -> void:
 	var asset: String = data.get("asset", "")
 	if asset == _current_bg:

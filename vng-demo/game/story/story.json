@@ -1,7 +1,15 @@
 {
 	"schema": 1,
 	"entry": "chapter1.prologue",
-	"chapters": ["chapter1"],
+	"entries": {
+		"chapter1": "prologue",
+		"chapter2": "morning"
+	},
+	"titles": {
+		"chapter1": "第一章 · 雨夜",
+		"chapter2": "第二章 · 清晨"
+	},
+	"chapters": ["chapter1", "chapter2"],
 	"characters": {
 		"rin": {"name": "凛"},
 		"announcer": {"name": "站务员"}

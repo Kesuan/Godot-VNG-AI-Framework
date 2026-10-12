@@ -42,7 +42,7 @@ announcer: 由于暴雨，今晚所有列车停运，请改乘明早第一班。
 你们躲进站前亮着灯的咖啡馆。
 rin: 这杯我请你——就当是伞的谢礼。
 你笑了。
--> END
+-> chapter2.cafe_morning
 
 :: leave_alone
 @hide rin

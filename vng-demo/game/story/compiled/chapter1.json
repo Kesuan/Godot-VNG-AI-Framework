@@ -67,7 +67,7 @@
 						"file": "res://game/story/chapter1.vns",
 						"line": 45
 					},
-					"target": "END"
+					"target": "chapter2.cafe_morning"
 				}
 			]
 		},
@@ -390,5 +390,5 @@
 	},
 	"schema": 1,
 	"source": "res://game/story/chapter1.vns",
-	"source_hash": "a1196d98fc57d4cb613907c5f9a4cf43d97604a3ab0eda07acdf6965de348c76"
+	"source_hash": "e9499a0864a2b75ba14a0b4fea7076659ec96fb5cff44de5b4192416774571a1"
 }

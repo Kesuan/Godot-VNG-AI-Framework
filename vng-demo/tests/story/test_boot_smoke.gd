@@ -10,7 +10,7 @@ func before_each() -> void:
 
 
 func test_story_screen_flow() -> void:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
 	var screen: Control = StoryScreenScene.instantiate()
 	screen.setup(services, _chapter(), "start")
 	VngRun.tree.root.add_child(screen)
@@ -50,7 +50,7 @@ func test_story_screen_flow() -> void:
 
 
 func test_choice_buttons_map_to_runtime_indices() -> void:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
 	var screen: Control = StoryScreenScene.instantiate()
 	screen.setup(services, _chapter(), "start")
 	VngRun.tree.root.add_child(screen)
@@ -68,7 +68,7 @@ func test_choice_buttons_map_to_runtime_indices() -> void:
 
 
 func test_mouse_click_advances_dialogue() -> void:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
 	var screen: Control = StoryScreenScene.instantiate()
 	screen.typewriter_cps = 100000.0
 	screen.setup(services, _click_chapter(), "start")
@@ -91,7 +91,7 @@ func test_mouse_click_advances_dialogue() -> void:
 
 
 func test_keyboard_accept_advances_dialogue() -> void:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
 	var screen: Control = StoryScreenScene.instantiate()
 	screen.typewriter_cps = 100000.0
 	screen.setup(services, _click_chapter(), "start")
@@ -116,7 +116,7 @@ func _settle_typing(screen: Control) -> void:
 
 
 func test_restart_after_finish_is_clean() -> void:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
 	var first: Control = StoryScreenScene.instantiate()
 	first.setup(services, _chapter(), "start")
 	VngRun.tree.root.add_child(first)

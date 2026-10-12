@@ -1,6 +1,11 @@
 {
 	"events": [
 		{
+			"chapter": "chapter1",
+			"entry": "prologue",
+			"type": "chapter_started"
+		},
+		{
 			"node": "prologue",
 			"type": "node_entered"
 		},
@@ -152,7 +157,52 @@
 			"who": ""
 		},
 		{
+			"chapter": "chapter1",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter2",
+			"entry": "cafe_morning",
+			"type": "chapter_started"
+		},
+		{
+			"node": "cafe_morning",
+			"type": "node_entered"
+		},
+		{
+			"asset": "cafe_night",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"char": "rin",
+			"expr": "smile",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "天快亮了，雨声渐渐小了下去。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "明天见。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "你笑着点了点头。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
 			"type": "story_ended"
+		},
+		{
+			"type": "story_finished"
 		}
 	],
 	"name": "chapter1_umbrella",
