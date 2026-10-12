@@ -25,6 +25,7 @@ static func lint(chapters: Dictionary, manifest: Dictionary, manifest_path := ""
 	_collect_writes_and_reads(chapters, writes, reads)
 
 	_validate_entry(manifest, manifest_path, node_index, errors)
+	_validate_entries(manifest, manifest_path, node_index, errors)
 	_validate_targets(chapters, node_index, local_ids, errors)
 	_check_reachability(chapters, manifest, node_index, warnings)
 	_validate_conditions(reads, writes, errors)
@@ -95,6 +96,40 @@ static func _validate_entry(manifest: Dictionary, manifest_path: String, node_in
 		)
 
 
+static func _validate_entries(manifest: Dictionary, manifest_path: String, node_index: Dictionary, errors: Array) -> void:
+	var raw: Variant = manifest.get("entries", {})
+	if not (raw is Dictionary):
+		Util.add_error(errors, manifest_path, 1, 1, "story.json 的 entries 需为 章节 → 入口节点 的映射")
+		return
+	var entry_map: Dictionary = raw
+	var chapter_order: Array = manifest.get("chapters", [])
+	for chapter_id in entry_map:
+		if not chapter_order.has(chapter_id):
+			Util.add_error(errors, manifest_path, 1, 1, "entries 中的章节未在 chapters 登记: '%s'" % chapter_id)
+	for chapter_id in chapter_order:
+		if entry_map.has(chapter_id):
+			var target: String = str(entry_map[chapter_id])
+			var qualified := "%s.%s" % [chapter_id, target]
+			if not node_index.has(qualified):
+				var suggestion := Util.suggest(target, _chapter_node_ids(node_index, chapter_id))
+				Util.add_error(
+					errors, manifest_path, 1, 1,
+					Util.suggest_message("章节 '%s' 的 entries 入口节点不存在" % chapter_id, target, suggestion)
+				)
+		elif chapter_order.size() > 1:
+			Util.add_error(errors, manifest_path, 1, 1, "多章节剧本必须为章节 '%s' 登记 entries 入口节点" % chapter_id)
+
+
+static func _chapter_node_ids(node_index: Dictionary, chapter_id: String) -> Array:
+	var ids: Array = []
+	var prefix := chapter_id + "."
+	for qualified in node_index:
+		var name: String = qualified
+		if name.begins_with(prefix):
+			ids.append(name.substr(prefix.length()))
+	return ids
+
+
 static func _validate_targets(chapters: Dictionary, node_index: Dictionary, local_ids: Dictionary, errors: Array) -> void:
 	for chapter_id in chapters:
 		var nodes: Dictionary = (chapters[chapter_id] as Dictionary).get("nodes", {})
@@ -117,7 +152,7 @@ static func _check_target(
 	src: Dictionary,
 	errors: Array
 ) -> void:
-	if target == "END":
+	if target == "END" or target == "STORY_END":
 		return
 	if _qualify(target, current_chapter, node_index) != "":
 		return
@@ -134,7 +169,7 @@ static func _check_target(
 
 
 static func _qualify(target: String, current_chapter: String, node_index: Dictionary) -> String:
-	if target == "END" or target == "":
+	if target == "END" or target == "STORY_END" or target == "":
 		return ""
 	if target.contains("."):
 		if node_index.has(target):
@@ -147,11 +182,20 @@ static func _qualify(target: String, current_chapter: String, node_index: Dictio
 
 
 static func _check_reachability(chapters: Dictionary, manifest: Dictionary, node_index: Dictionary, warnings: Array) -> void:
+	var reachable := {}
+	var queue: Array = []
 	var start := _qualify(manifest.get("entry", ""), "", node_index)
-	if start == "":
+	if start != "":
+		reachable[start] = true
+		queue.append(start)
+	var entries: Dictionary = manifest.get("entries", {})
+	for chapter_id in entries:
+		var qualified_entry := _qualify("%s.%s" % [chapter_id, str(entries[chapter_id])], "", node_index)
+		if qualified_entry != "" and not reachable.has(qualified_entry):
+			reachable[qualified_entry] = true
+			queue.append(qualified_entry)
+	if queue.is_empty():
 		return
-	var reachable := {start: true}
-	var queue: Array = [start]
 	while not queue.is_empty():
 		var current: String = queue.pop_front()
 		var parts := current.split(".", false)

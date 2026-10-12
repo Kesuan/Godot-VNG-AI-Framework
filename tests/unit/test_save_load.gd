@@ -64,6 +64,58 @@ func test_chapter_mismatch_is_rejected() -> void:
 	assert_false(VngSave.apply(runtime, services, save))
 
 
+func test_story_hash_is_checked_when_provided() -> void:
+	var services := VngServices.for_tests(5)
+	var runtime := VngStoryRuntime.new(services, SampleChapter.build())
+	runtime.start("prologue")
+	var save := VngSave.capture(runtime, services, "hash-a")
+	assert_eq(save.get("story_hash", ""), "hash-a")
+	assert_false(VngSave.apply(runtime, services, save, "hash-b"))
+	assert_eq(runtime.errors.size(), 1)
+	assert_true(VngSave.apply(runtime, services, save, "hash-a"))
+
+
+func test_play_time_round_trip() -> void:
+	var services := VngServices.for_tests(5)
+	var runtime := VngStoryRuntime.new(services, SampleChapter.build())
+	runtime.start("prologue")
+	(services.clock as VngFakeClock).advance(42.0)
+	var save := VngSave.capture(runtime, services)
+	assert_eq(float(save.get("play_time", 0.0)), 42.0)
+	var other_services := VngServices.for_tests(5)
+	var other_runtime := VngStoryRuntime.new(other_services, SampleChapter.build())
+	other_runtime.start("prologue")
+	assert_true(VngSave.apply(other_runtime, other_services, save))
+	assert_eq(float(other_services.clock.now()), 42.0)
+
+
+func test_end_kind_round_trip() -> void:
+	var chapter := {
+		"chapter": "chapter1",
+		"nodes": {
+			"n": {
+				"id": "n",
+				"steps": [
+					{"op": "say", "who": "", "text": "就到这里。"},
+					{"op": "goto", "target": "STORY_END"},
+				],
+			},
+		},
+	}
+	var services_a := VngServices.for_tests(5)
+	var runtime := VngStoryRuntime.new(services_a, chapter)
+	runtime.start("n")
+	runtime.advance()
+	assert_eq(runtime.end_kind, VngStoryRuntime.END_STORY)
+	var snapshot_before := runtime.snapshot()
+	var save := VngSave.capture(runtime, services_a)
+	var services_b := VngServices.for_tests(5)
+	var target := VngStoryRuntime.new(services_b, chapter)
+	target.start("n")
+	assert_true(VngSave.apply(target, services_b, save))
+	assert_eq(target.snapshot(), snapshot_before)
+
+
 func test_save_store_round_trip() -> void:
 	var store := VngSaveStore.new("user://vng_test/saves")
 	if store.exists("slot1"):
@@ -81,3 +133,16 @@ func test_save_store_rejects_bad_slot_names() -> void:
 	assert_eq(store.write("../evil", {}), ERR_INVALID_PARAMETER)
 	assert_eq(store.read("bad/slot"), {})
 	assert_false(store.exists(""))
+
+
+func test_save_store_max_sequence() -> void:
+	var store := VngSaveStore.new("user://vng_test/save_store_seq")
+	assert_eq(store.max_sequence(), 0)
+	assert_eq(store.write("slot1", {"save_seq": 3}), OK)
+	assert_eq(store.write("slot2", {"save_seq": 7}), OK)
+	assert_eq(store.max_sequence(), 7)
+	store.write("slot2", {"play_time": 1.0})
+	assert_eq(store.max_sequence(), 3)
+	store.erase("slot1")
+	store.erase("slot2")
+	assert_eq(store.max_sequence(), 0)

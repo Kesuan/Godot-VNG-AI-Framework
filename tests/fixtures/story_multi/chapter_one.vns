@@ -1,0 +1,6 @@
+@chapter chapter_one
+
+:: opening
+第一幕开场。
+* 继续 -> chapter_two.closing
+* 终结 -> STORY_END

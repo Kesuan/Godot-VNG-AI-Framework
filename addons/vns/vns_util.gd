@@ -48,7 +48,7 @@ static func is_identifier(text: String) -> bool:
 
 
 static func is_target(text: String) -> bool:
-	if text == "END":
+	if text == "END" or text == "STORY_END":
 		return true
 	if text.contains("."):
 		var parts := text.split(".", false)

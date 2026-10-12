@@ -6,9 +6,11 @@ const TraceGolden := preload("res://addons/vng_test/dsl/trace_golden.gd")
 var services: VngServices
 var runtime: VngStoryRuntime
 var chapter: Dictionary
+var session: VngStorySession = null
 
 var _test: Object
 var _reported_errors := 0
+var _session_reported_errors := 0
 
 
 func _init(p_chapter: Dictionary, p_test: Object, seed_value := 0) -> void:
@@ -18,17 +20,38 @@ func _init(p_chapter: Dictionary, p_test: Object, seed_value := 0) -> void:
 	runtime = VngStoryRuntime.new(services, chapter)
 
 
+static func for_story(story: Dictionary, p_test: Object, seed_value := 0) -> VngPlaythrough:
+	var play := VngPlaythrough.new({}, p_test, seed_value)
+	play.session = VngStorySession.new(play.services, story.get("manifest", {}), story.get("chapters", {}))
+	play.runtime = null
+	return play
+
+
+func start_story(entry := "") -> VngPlaythrough:
+	if session == null:
+		_test.fail("start_story 仅用于 for_story 会话模式")
+		return self
+	session.start(entry)
+	return _check()
+
+
 func start_scene(node: String) -> VngPlaythrough:
 	runtime.start(node)
 	return _check_runtime()
 
 
 func advance() -> VngPlaythrough:
+	if session != null:
+		session.advance()
+		return _check()
 	runtime.advance()
 	return _check_runtime()
 
 
 func choose(index: int) -> VngPlaythrough:
+	if session != null:
+		session.choose(index)
+		return _check()
 	runtime.choose(index)
 	return _check_runtime()
 
@@ -46,6 +69,9 @@ func choose_text(text: String) -> VngPlaythrough:
 
 
 func skip_to(node: String) -> VngPlaythrough:
+	if session != null:
+		session.skip_to(node)
+		return _check()
 	runtime.skip_to(node)
 	return _check_runtime()
 
@@ -100,7 +126,27 @@ func expect_ended(message := "") -> VngPlaythrough:
 	return self
 
 
+func expect_chapter(chapter_id: String, message := "") -> VngPlaythrough:
+	if session == null:
+		_test.fail(_m(message, "expect_chapter 仅用于会话模式"))
+		return self
+	_test.assert_eq(session.current_chapter, chapter_id, _m(message, "当前章节（%s）" % _context()))
+	return self
+
+
+func expect_finished(message := "") -> VngPlaythrough:
+	if session == null:
+		_test.fail(_m(message, "expect_finished 仅用于会话模式"))
+		return self
+	_test.assert_true(session.finished, _m(message, "会话应已完结（%s）" % _context()))
+	return self
+
+
 func expect_no_errors(message := "") -> VngPlaythrough:
+	if session != null and not session.errors.is_empty():
+		var first_session: Dictionary = session.errors[0]
+		_test.fail(_m(message, "存在 %d 个会话错误，首个: %s" % [session.errors.size(), first_session.get("message", "")]))
+		return self
 	if runtime.errors.is_empty():
 		return self
 	var first: Dictionary = runtime.errors[0]
@@ -136,11 +182,36 @@ func _choice_texts() -> Array:
 
 
 func _context() -> String:
+	if session != null:
+		return "%s:%s:%d" % [session.current_chapter, runtime.node_id if runtime != null else "-", runtime.step_index if runtime != null else -1]
 	return "%s:%d" % [runtime.node_id, runtime.step_index]
 
 
 func _m(message: String, fallback: String) -> String:
 	return message if message != "" else fallback
+
+
+func _check() -> VngPlaythrough:
+	if session != null:
+		_report_session_errors()
+		if session.runtime != null:
+			runtime = session.runtime
+			_check_runtime()
+		return self
+	return _check_runtime()
+
+
+func _report_session_errors() -> void:
+	if session.errors.size() <= _session_reported_errors:
+		return
+	for i in range(_session_reported_errors, session.errors.size()):
+		var session_error: Dictionary = session.errors[i]
+		_test.fail("会话错误: %s（章节 %s 节点 %s）" % [
+			session_error.get("message", ""),
+			session_error.get("chapter", ""),
+			session_error.get("node", ""),
+		])
+	_session_reported_errors = session.errors.size()
 
 
 func _check_runtime() -> VngPlaythrough:

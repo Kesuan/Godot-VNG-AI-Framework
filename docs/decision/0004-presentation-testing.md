@@ -17,8 +17,9 @@
 
 1. **补充表现层 headless 冒烟测试**（L2-lite）：实例化真实场景、走真实输入路径、断言语义状态（文本/可见性/选项/flag/节点）。像素级视觉测试仍不在范围（0001 的其余结论不变）。
 2. **输入仿真统一走 `addons/vng_test/dsl/input_sim.gd`**：
-   - `click(tree, pos)`：先推 `InputEventMouseMotion` 建立 `mouse_over`，再推按钮事件——这是复现真实 GUI 拾取（Control 拦截）的唯一可靠方式；
-   - headless 下根 Window 尺寸会被引擎重置，helper 在 motion 前显式设置 1280×720；
+   - `click(tree, pos)`：先推 `InputEventMouseMotion` 建立 `mouse_over`，再推按下+抬起（按钮 `pressed` 在抬起时触发），可命中真实按钮；
+   - headless 下根 Window 尺寸会被引擎重置为 64×64，helper 在 motion 前显式设置 1280×720；
+   - headless 窗口系统坐标与视口不一致，事件须以**局部坐标**投递（`window.push_input(event, true)`），否则 GUI 拾取失配（0006 期间踩坑记录）；
    - `press_action(tree, "ui_accept")` 覆盖键盘路径。
    - 测试**不得**直接调用场景内部方法（如 `request_advance()`）来"模拟"输入。
 3. **场景生命周期必须测试重入**（完成 → 销毁 → 重进）：事件订阅必须在 `_exit_tree` 解除；`VngEventBus` 额外对失效 Callable 自动剪除（防御，`listener_count(type, true)` 可断言原始槽位）。

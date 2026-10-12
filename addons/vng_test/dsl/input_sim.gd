@@ -8,7 +8,9 @@ static func click(tree: SceneTree, position := Vector2(100.0, 100.0)) -> void:
 	window.size = DESIGN_SIZE
 	_push_motion(window, position)
 	await tree.process_frame
-	_push_button(window, position)
+	_push_button(window, position, true)
+	await tree.process_frame
+	_push_button(window, position, false)
 	await tree.process_frame
 
 
@@ -29,13 +31,15 @@ static func _push_motion(window: Window, position: Vector2) -> void:
 	var motion := InputEventMouseMotion.new()
 	motion.position = position
 	motion.global_position = position
-	window.push_input(motion)
+	# headless 下窗口系统坐标为 64×64，须以局部（视口）坐标投递，GUI 拾取才能命中
+	window.push_input(motion, true)
 
 
-static func _push_button(window: Window, position: Vector2) -> void:
+static func _push_button(window: Window, position: Vector2, pressed: bool) -> void:
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
-	click.pressed = true
+	click.pressed = pressed
 	click.position = position
 	click.global_position = position
-	window.push_input(click)
+	# headless 下窗口系统坐标为 64×64，须以局部（视口）坐标投递，GUI 拾取才能命中
+	window.push_input(click, true)

@@ -119,6 +119,16 @@ func test_escape_makes_special_prefix_narration() -> void:
 	assert_eq((steps[0] as Dictionary).get("text", ""), "* 这不是选项")
 
 
+func test_story_end_and_cross_chapter_targets_parse() -> void:
+	var source := "@chapter chapter_one\n\n:: n\n-> STORY_END\n\n:: m\n-> chapter_two.other\n"
+	var parsed := Parser.parse(source, FILE)
+	assert_true(parsed.ok, _messages(parsed.errors))
+	var steps: Array = ((parsed.chapter.nodes as Dictionary)["n"] as Dictionary).get("steps", [])
+	assert_eq((steps[0] as Dictionary).get("target", ""), "STORY_END")
+	var steps_m: Array = ((parsed.chapter.nodes as Dictionary)["m"] as Dictionary).get("steps", [])
+	assert_eq((steps_m[0] as Dictionary).get("target", ""), "chapter_two.other")
+
+
 func _messages(errors: Array) -> String:
 	var lines := PackedStringArray()
 	for error in errors:

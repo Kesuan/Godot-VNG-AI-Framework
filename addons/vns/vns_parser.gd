@@ -81,7 +81,7 @@ static func parse(source: String, file_path: String) -> Dictionary:
 			else:
 				var target := line.substr(2).strip_edges()
 				if not Util.is_target(target):
-					Util.add_error(errors, file_path, line_number, 3, "跳转目标格式无效: '%s'（需为节点名、章节.节点 或 END）" % target)
+					Util.add_error(errors, file_path, line_number, 3, "跳转目标格式无效: '%s'（需为节点名、章节.节点、END 或 STORY_END）" % target)
 				else:
 					current_steps.append({"op": "goto", "target": target, "src": {"file": file_path, "line": line_number}})
 			last_was_choice = false
@@ -343,7 +343,7 @@ static func _parse_choice(line: String, file_path: String, line_number: int, err
 	var target := rest.substr(arrow + 2).strip_edges()
 	var head := rest.substr(0, arrow).strip_edges()
 	if not Util.is_target(target):
-		Util.add_error(errors, file_path, line_number, 3, "跳转目标格式无效: '%s'（需为节点名、章节.节点 或 END）" % target)
+		Util.add_error(errors, file_path, line_number, 3, "跳转目标格式无效: '%s'（需为节点名、章节.节点、END 或 STORY_END）" % target)
 		return {}
 	var cond := ""
 	if head.ends_with("}"):

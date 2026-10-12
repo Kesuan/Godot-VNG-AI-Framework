@@ -5,6 +5,12 @@ const WAITING_NONE := ""
 const WAITING_SAY := "say"
 const WAITING_CHOICE := "choice"
 
+const END_NONE := ""
+const END_CHAPTER := "chapter"
+const END_STORY := "story"
+const END_ABORT := "abort"
+const END_HANDOFF := "handoff"
+
 var services: VngServices
 var chapter: Dictionary
 var state: VngStoryState
@@ -13,6 +19,8 @@ var node_id := ""
 var step_index := 0
 var waiting := WAITING_NONE
 var ended := false
+var end_kind := END_NONE
+var cross_chapter_handler := Callable()
 var current_line: Dictionary = {}
 var current_choices: Array = []
 var stage := {"bg": "", "chars": {}, "bgm": ""}
@@ -109,6 +117,7 @@ func snapshot() -> Dictionary:
 		"step": step_index,
 		"waiting": waiting,
 		"ended": ended,
+		"end_kind": end_kind,
 		"line": current_line.duplicate(true),
 		"choices": current_choices.duplicate(true),
 		"flags": state.flags.duplicate(true),
@@ -124,6 +133,7 @@ func restore_state(data: Dictionary) -> void:
 	step_index = int(data.get("step", 0))
 	waiting = data.get("waiting", WAITING_NONE)
 	ended = bool(data.get("ended", false))
+	end_kind = data.get("end_kind", END_NONE)
 	state.restore({"flags": data.get("flags", {}), "vars": data.get("vars", {})})
 	stage = (data.get("stage", {"bg": "", "chars": {}, "bgm": ""}) as Dictionary).duplicate(true)
 	warnings = []
@@ -283,15 +293,24 @@ func _option_by_index(index: int) -> Dictionary:
 
 
 func _enter_node(target: String) -> void:
-	if target == "END":
+	if target == "END" or target == "STORY_END":
 		ended = true
+		end_kind = END_CHAPTER if target == "END" else END_STORY
 		waiting = WAITING_NONE
 		current_line = {}
 		current_choices = []
-		_emit("story_ended", {})
+		_emit("story_ended", {"kind": end_kind})
 		return
 	var resolved := _resolve_target(target)
 	if resolved == "":
+		if _is_foreign_chapter_target(target):
+			if cross_chapter_handler.is_valid() and bool(cross_chapter_handler.call(target)):
+				ended = true
+				end_kind = END_HANDOFF
+				waiting = WAITING_NONE
+				current_line = {}
+				current_choices = []
+				return
 		_abort("跳转目标不存在: %s" % target)
 		return
 	node_id = resolved
@@ -300,6 +319,13 @@ func _enter_node(target: String) -> void:
 	current_line = {}
 	current_choices = []
 	_emit("node_entered", {"node": node_id})
+
+
+func _is_foreign_chapter_target(target: String) -> bool:
+	if not target.contains("."):
+		return false
+	var parts := target.split(".", false)
+	return parts.size() == 2 and parts[0] != chapter.get("chapter", "")
 
 
 func _resolve_target(target: String) -> String:
@@ -347,10 +373,11 @@ func _warn(message: String) -> void:
 func _abort(message: String) -> void:
 	_fail(message)
 	ended = true
+	end_kind = END_ABORT
 	waiting = WAITING_NONE
 	current_line = {}
 	current_choices = []
-	_emit("story_ended", {"aborted": true})
+	_emit("story_ended", {"aborted": true, "kind": END_ABORT})
 
 
 static func _stringify(value: Variant) -> String:

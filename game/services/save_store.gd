@@ -78,3 +78,12 @@ func list_slots() -> PackedStringArray:
 			slots.append(file_name.trim_suffix(".json"))
 	slots.sort()
 	return slots
+
+
+func max_sequence(slots := PackedStringArray()) -> int:
+	var names := slots if not slots.is_empty() else list_slots()
+	var best := 0
+	for slot in names:
+		var data := read(slot)
+		best = maxi(best, int(data.get("save_seq", 0)))
+	return best

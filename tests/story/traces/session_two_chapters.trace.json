@@ -1,0 +1,65 @@
+{
+	"events": [
+		{
+			"chapter": "chapter1",
+			"entry": "start",
+			"type": "chapter_started"
+		},
+		{
+			"node": "start",
+			"type": "node_entered"
+		},
+		{
+			"asset": "room",
+			"type": "bg_changed"
+		},
+		{
+			"name": "met_kaede",
+			"type": "flag_changed",
+			"value": true
+		},
+		{
+			"text": "第一章开始了。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"node": "proceed",
+			"type": "node_entered"
+		},
+		{
+			"text": "雨停了。",
+			"type": "line_shown",
+			"who": "kaede"
+		},
+		{
+			"type": "story_ended"
+		},
+		{
+			"chapter": "chapter1",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter2",
+			"entry": "wake",
+			"type": "chapter_started"
+		},
+		{
+			"node": "wake",
+			"type": "node_entered"
+		},
+		{
+			"text": "第二章开始了。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"type": "story_ended"
+		},
+		{
+			"type": "story_finished"
+		}
+	],
+	"name": "session_two_chapters",
+	"schema": 1
+}

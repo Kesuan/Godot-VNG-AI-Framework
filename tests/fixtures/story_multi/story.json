@@ -1,0 +1,15 @@
+{
+	"schema": 1,
+	"entry": "chapter_one.opening",
+	"entries": {
+		"chapter_one": "opening",
+		"chapter_two": "closing"
+	},
+	"chapters": ["chapter_one", "chapter_two"],
+	"characters": {},
+	"assets": {
+		"bg": [],
+		"bgm": [],
+		"sfx": []
+	}
+}
