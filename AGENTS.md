@@ -62,10 +62,11 @@ AI Agent 驱动的视觉小说（VNG）开发框架。当前仓库是**框架开
 - **禁止**裸 `randi/randf/randi_range/randf_range/randomize` 与 `Time.*`、`OS.get_ticks_*`；`tools/lint` 会扫描 `game/` 并给出替代建议。
 - **GDScript 陷阱**：类方法名不要与全局函数重名（`randi`、`seed` 等）——类内部裸调用会解析为全局函数而非方法。RNG 服务因此使用 `next_*` 命名。
 - `game/core/` 零 Node 依赖（全部 RefCounted），headless 直接单测：
-  - `VngStoryRuntime`：`start / advance / choose / skip_to / pump / snapshot`；未知跳转与非法操作记录 `errors`，条件引用未定义变量记入 `warnings` 并视为 false。
+  - `VngStoryRuntime`：`start / advance / choose / skip_to / pump / snapshot`；未知跳转与非法操作记录 `errors`，条件引用未定义变量记入 `warnings` 并视为 false；单章执行器，跨章通过 `cross_chapter_handler` 交还会话。
+  - `VngStorySession`：多章节会话（manifest + 章节表 + 当前 runtime）；`-> END` 章末自动推进、`STORY_END` 提前终结；flags/vars/stage 跨章延续（见 [decision 0006](docs/decision/0006-multi-chapter-and-save.md)）。
   - `VngStoryState`：flags(bool) / vars(int)。
   - `VngCondition`：条件表达式（`not/!/&&/||/()/比较`），失败返回 `{ok,error}`。
-  - `VngSave`：`capture / apply`（含 rng state 与 clock），`VngSaveStore` 管理槽位（root 可配置）。
+  - `VngSave`：存档 v2（`story_hash` / `play_time`，含 rng state 与舞台快照），`VngSaveStore` 管理槽位（root 可配置）。
 - 启动参数（游戏接入时使用）：`--test-mode --seed=N --save-root=user://...` → `VngBootConfig.from_cmdline()`。
 
 ## 剧本 DSL 与 trace golden（P3）
@@ -89,6 +90,7 @@ yuki: 早上好！
 -> hallway
 ```
 
+- 章节语义：`-> END` 结束当前章（存在下一章则自动进入其 `entries` 入口）；`-> STORY_END` 提前终结全书；多章剧本在 `story.json` 的 `entries` 登记每章入口（单章可省略）。
 - 结构校验与 lint 一次性完成：`tools/story lint`；错误格式 `file:line:col: error: 消息（是否想写 'xxx'？）`，覆盖跳转断链、flag/变量 typo、资源/角色登记、节点可达性。
 - 剧本级测试（`tests/story/`）用 playthrough DSL：
 
@@ -104,6 +106,8 @@ play.expect_no_errors()
 play.expect_trace("chapter1_secret")
 ```
 
+- 多章节用 `VngPlaythrough.for_story(result, self)` + `start_story()`；`expect_chapter / expect_finished` 断言章节切换与全书完结；trace 会包含 `chapter_started / chapter_finished / story_finished` 语义事件。
+
 - trace golden 存于 `tests/story/traces/*.trace.json`，记录**语义事件**（对白/选项/flag 变化/演出指令），不含行号与时间戳；插入新台词不会无故破坏基线。
 - golden 更新必须显式执行 `tools/test --update-traces`（禁止默认重录），审计写入 `test-results/trace-updates.log`；比对失败会在测试信息中给出文本 diff。
 
@@ -112,8 +116,9 @@ play.expect_trace("chapter1_secret")
 - 游戏专属代码只在：`vng-demo/game/presentation/`、`vng-demo/game/story/`、`vng-demo/tests/`。
 - 框架镜像（**禁止手改**，由 `tools/demo sync` 生成并 gitignore）：`vng-demo/addons/{vng_test,vns}`、`vng-demo/game/{core,services}`；镜像目录带 `.vng-mirror` 标记。
 - 改动框架后必须两侧验证：仓库根 `tools/test` 与 `tools/demo test` 都绿。
-- 表现层约定：只订阅 `services.events` 与推送 `VngCommand`，不直接改 core 状态；剧情屏通过 `story_screen.setup(services, chapter, node, display_names)` 注入（boot smoke 测试依赖该入口）。
-- **表现层测试必须走真实输入路径**：用 `addons/vng_test/dsl/input_sim.gd` 的 `click(tree)` / `press_action(tree, "ui_accept")`，不要直接调用场景内部方法；headless 下窗口尺寸会被重置，helper 已处理（见 [decision 0004](docs/decision/0004-presentation-testing.md)）。
+- 表现层约定：只订阅 `services.events` 与推送 `VngCommand`，不直接改 core 状态；剧情屏通过 `story_screen.setup_session(services, session, display_names)` 注入（正式入口），`setup(services, chapter, node, display_names)` 是单章便捷包装（boot smoke 沿用）。
+- 存档/菜单（见 [decision 0006](docs/decision/0006-multi-chapter-and-save.md)）：游戏内 ESC 菜单读写 `VngSaveStore` 槽位（`auto` + `slot1`~`slot3`），进入新章自动写 `auto`；标题屏「继续」读最近写入（`save_seq` 最大）的存档，「读取存档」可直接选任意槽位。存档 v2 带 `story_hash`，改剧本后旧档被拒绝。
+- **表现层测试必须走真实输入路径**：用 `addons/vng_test/dsl/input_sim.gd` 的 `click(tree, pos)` / `press_action(tree, "ui_accept")`，不要直接调用场景内部方法；helper 处理 headless 窗口尺寸（1280×720）、局部坐标投递与 press/release（按钮在抬起时触发），见 [decision 0004](docs/decision/0004-presentation-testing.md)。
 - **场景类测试必须覆盖重入**（完成 → 销毁 → 重进）：事件订阅在 `_exit_tree` 解除；总线对失效 Callable 自动剪除，可用 `listener_count(type, true)` 断言原始槽位。
 - 修复类改动做"回退验证"：临时还原修复确认用例变红，防止测试失效。
 - **资源管线**（见 [decision 0005](docs/decision/0005-asset-pipeline.md)）：素材放 `vng-demo/assets/{bg,char/<角色>,audio/{bgm,sfx}}/`；回退链"真实文件 → 立绘 default → 占位"；候选规则集中在 `addons/vns/vns_asset_paths.gd`；投放后无需改代码，`tools/demo assets` 可查缺；测试用运行时生成的 `user://` 资源，不引入二进制 fixture。
@@ -147,9 +152,9 @@ game/story/             # 框架示例剧本（框架自测用）
 game/presentation/      # 框架侧表现层占位（游戏表现层在 vng-demo）
 test-results/           # 运行产物，不入库
 vng-demo/               # 游戏工程（见「游戏工程」小节）
-├── game/presentation/  # 标题/剧情屏/舞台/对白/选项/音频
-├── game/story/         # 游戏剧本 + compiled/
-├── tests/              # 游戏测试（story/smoke/unit）
+├── game/presentation/  # 标题/剧情屏/菜单/舞台/对白/选项/音频
+├── game/story/         # 游戏剧本（多章）+ compiled/
+├── tests/              # 游戏测试（story/存档/smoke/unit）
 └── addons/, game/{core,services}/   # 框架镜像（gitignore）
 ```
 
@@ -166,10 +171,10 @@ vng-demo/               # 游戏工程（见「游戏工程」小节）
 
 ## 关键文档
 
-- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[0002](docs/decision/0002-story-dsl.md)、[0003](docs/decision/0003-game-project-structure.md)、[0004](docs/decision/0004-presentation-testing.md)、[0005](docs/decision/0005-asset-pipeline.md)
+- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[0002](docs/decision/0002-story-dsl.md)、[0003](docs/decision/0003-game-project-structure.md)、[0004](docs/decision/0004-presentation-testing.md)、[0005](docs/decision/0005-asset-pipeline.md)、[0006](docs/decision/0006-multi-chapter-and-save.md)
 - 计划：[docs/plans/0001-test-framework-v1.md](docs/plans/0001-test-framework-v1.md)
 
 ## 当前阶段
 
-第一条可玩切片已完成并完成首轮体验修复；资源管线机制已就位（目录约定/回退链/就位报告/双轨舞台），零素材兼容、投放即生效。
-下一步候选：存档/读档与多章节运行时、真实美术/音频素材投放、`vng-demo` 导出配置、场景语义断言库。
+多章节运行时与存档/读档已完成：`END` 章末推进 / `STORY_END` 提前终结 / 会话跨章延续状态；存档 v2（`story_hash`/`play_time`）+ 自动档 + 3 手动槽 + 标题「继续」；vng-demo 为双章剧本《雨夜车站》。
+下一步候选：真实音频素材投放（3 项待投放）、`vng-demo` 导出配置、场景语义断言库、回顾/跳过等体验补全。

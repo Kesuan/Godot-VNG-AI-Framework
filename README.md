@@ -20,6 +20,7 @@ Agent 的迭代闭环质量 = **反馈信号的质量 × 速度**。不可复现
 - **剧本 DSL（`.vns`）**：编译为规范 JSON；静态 lint 覆盖断链、flag typo、资源/角色登记、节点可达性，错误带行号与 did-you-mean
 - **playthrough DSL + trace golden**：语义事件轨迹（不含行号与时间戳），更新必须显式批准并写审计日志
 - **确定性 core**：Rng / Clock / InputHub / EventBus 服务注入；core 零 Node 依赖，headless 直接单测
+- **多章节与存档**：`END` 章末自动推进 / `STORY_END` 提前终结；会话跨章延续状态；存档 v2（`story_hash` + `play_time`）、自动 + 3 手动槽、标题「继续」
 - **表现层测试走真实输入路径**：鼠标/键盘仿真经过真实 GUI 拾取与输入路由；场景重入有回归测试
 - **资源管线**：零素材可用、投放即生效（免导入）；`tools/demo assets` 列出待投放清单
 
@@ -29,9 +30,9 @@ Agent 的迭代闭环质量 = **反馈信号的质量 × 速度**。不可复现
 
 ```bash
 tools/test --fast          # 框架单元测试（秒级）
-tools/test                 # 全量：框架 138 项（unit / meta 契约 / story E2E）
-tools/demo run             # 体验示例游戏《雨夜车站》
-tools/demo test            # 游戏侧 15 项（story / smoke / 资源管线）
+tools/test                 # 全量：框架 158 项（unit / meta 契约 / story E2E）
+tools/demo run             # 体验示例游戏《雨夜车站》（双章 + 存档）
+tools/demo test            # 游戏侧 22 项（story / 存档 / smoke / 资源管线）
 tools/lint                 # 格式 + 静态 + 非确定性 API 扫描
 ```
 
@@ -63,9 +64,9 @@ docs/              # 决策记录（ADR）与实施计划
 
 ## 当前状态
 
-- 第一条可玩切片《雨夜车站》已可玩：标题 → 演出 → 选项分支 → END → 回标题（[标题画面](docs/assets/demo-title.png)）；背景与立绘已投放，音频待投放
-- 测试：框架 138 项、游戏 15 项，全绿
-- 下一步候选：存档/读档与多章节运行时、音频投放、导出配置、场景语义断言库
+- 《雨夜车站》双章可玩（[标题画面](docs/assets/demo-title.png)）：标题 → 第一章分支 → 章末自动进入第二章《清晨》尾声 → 回标题；ESC 菜单支持 存档/读档/回标题，标题屏可「继续游戏」（最近写入）或「读取存档」（任选槽位）
+- 测试：框架 158 项、游戏 22 项，全绿
+- 下一步候选：真实音频素材投放（3 项）、`vng-demo` 导出配置、场景语义断言库、回顾/跳过等体验补全
 
 ## 许可
 
