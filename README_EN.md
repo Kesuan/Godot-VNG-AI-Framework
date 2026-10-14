@@ -21,6 +21,7 @@ An agent's iteration loop is only as good as its feedback: **signal quality × s
 - **Playthrough DSL + trace goldens**: semantic event traces (no line numbers or timestamps); updates require explicit approval and are audit-logged
 - **Deterministic core**: Rng / Clock / InputHub / EventBus via service injection; core has zero Node dependencies and is unit-testable headless
 - **Multi-chapter & saves**: `END` advances to the next chapter, `STORY_END` finishes early; session carries state across chapters; save v2 (`story_hash` + `play_time`), auto + 3 manual slots, "Continue" on the title screen
+- **UX layer**: settings (volumes / text speed / auto interval, persisted); skip-read (content-hash line ids, text edits re-mark as unread); auto-play; backlog (session-wide, including choices)
 - **Presentation tests via real input paths**: mouse/keyboard simulation goes through the actual GUI picking and input routing; scene re-entry is covered by regression tests
 - **Asset pipeline**: works with zero assets, drop-in effect without re-import; `tools/demo assets` lists what is still missing
 
@@ -30,9 +31,9 @@ Requirements: **Godot 4.7+** (macOS supported today); set `GODOT_BIN` to point a
 
 ```bash
 tools/test --fast          # framework unit tests (seconds)
-tools/test                 # full framework suite: 158 tests (unit / meta contracts / story E2E)
-tools/demo run             # play the demo game "Rainy Night Station" (two chapters + saves)
-tools/demo test            # game-side tests: 22 (story / saves / smoke / asset pipeline)
+tools/test                 # full framework suite: 168 tests (unit / meta contracts / story E2E)
+tools/demo run             # play the demo game "Rainy Night Station" (two chapters + saves + UX)
+tools/demo test            # game-side tests: 28 (story / saves / UX / smoke / asset pipeline)
 tools/lint                 # formatting + static checks + non-deterministic API scan
 ```
 
@@ -64,9 +65,9 @@ The framework/game relationship and mirroring mechanism are described in [decisi
 
 ## Status
 
-- "Rainy Night Station" is playable across two chapters ([title screen](docs/assets/demo-title.png)): title → chapter 1 branches → auto-advance into the chapter 2 epilogue → back to title; the ESC menu supports save/load/back-to-title, and the title screen offers "Continue" (most recently written save) or "Load" (pick any slot)
-- Tests: 158 framework + 22 game tests, all green
-- Next candidates: real audio drop-in (3 pending), `vng-demo` export presets, scene-semantic assertion library, backlog/skip polish
+- "Rainy Night Station" is playable across two chapters ([title screen](docs/assets/demo-title.png)): title → chapter 1 branches → auto-advance into the chapter 2 epilogue → back to title; saves (continue / slot picker) and the UX layer (settings / skip-read / auto / backlog) are in place
+- Tests: 168 framework + 28 game tests, all green
+- Next candidates: TTS voice pipeline (line ids ready), real audio drop-in (3 pending), `vng-demo` export presets, CI
 
 ## License
 
