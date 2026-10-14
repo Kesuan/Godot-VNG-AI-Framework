@@ -55,6 +55,48 @@ func test_story_end_is_a_valid_target() -> void:
 	assert_false(_contains(result.errors, "跳转目标不存在"))
 
 
+func _endings_chapters() -> Dictionary:
+	return {
+		"gamma": {
+			"chapter": "gamma",
+			"nodes": {
+				"end": {
+					"id": "end",
+					"steps": [
+						{"op": "say", "who": "", "text": "x", "src": {"file": "g.vns", "line": 3}},
+						{"op": "ending", "id": "good_end", "src": {"file": "g.vns", "line": 4}},
+						{"op": "goto", "target": "END"},
+					],
+				},
+			},
+		},
+	}
+
+
+func test_ending_must_be_registered_with_suggestion() -> void:
+	var manifest := {"entry": "gamma.end", "chapters": ["gamma"], "endings": {"good_end": {"title": "好结局"}}}
+	var chapters := _endings_chapters()
+	var gamma: Dictionary = chapters["gamma"]
+	var nodes: Dictionary = gamma["nodes"]
+	var node: Dictionary = nodes["end"]
+	var steps: Array = node["steps"]
+	steps[1] = {"op": "ending", "id": "god_end", "src": {"file": "g.vns", "line": 4}}
+	var result := Linter.lint(chapters, manifest, "story.json")
+	assert_true(_contains(result.errors, "结局未在 story.json 的 endings 中登记"))
+	assert_true(_contains(result.errors, "是否想写 'good_end'"))
+
+
+func test_unused_registered_ending_warns() -> void:
+	var manifest := {
+		"entry": "gamma.end",
+		"chapters": ["gamma"],
+		"endings": {"good_end": {"title": "好"}, "unused_end": {"title": "未用"}},
+	}
+	var result := Linter.lint(_endings_chapters(), manifest, "story.json")
+	assert_true(_contains(result.warnings, "结局 'unused_end' 已登记但没有任何 @ending 引用"))
+	assert_false(_contains(result.errors, "结局未在 story.json 的 endings 中登记"))
+
+
 func _multi_chapters() -> Dictionary:
 	return {
 		"alpha": {

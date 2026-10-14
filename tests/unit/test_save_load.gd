@@ -97,6 +97,7 @@ func test_end_kind_round_trip() -> void:
 				"id": "n",
 				"steps": [
 					{"op": "say", "who": "", "text": "就到这里。"},
+					{"op": "ending", "id": "story_good"},
 					{"op": "goto", "target": "STORY_END"},
 				],
 			},
@@ -107,6 +108,7 @@ func test_end_kind_round_trip() -> void:
 	runtime.start("n")
 	runtime.advance()
 	assert_eq(runtime.end_kind, VngStoryRuntime.END_STORY)
+	assert_eq(runtime.ending_id, "story_good")
 	var snapshot_before := runtime.snapshot()
 	var save := VngSave.capture(runtime, services_a)
 	var services_b := VngServices.for_tests(5)
@@ -114,6 +116,7 @@ func test_end_kind_round_trip() -> void:
 	target.start("n")
 	assert_true(VngSave.apply(target, services_b, save))
 	assert_eq(target.snapshot(), snapshot_before)
+	assert_eq(target.ending_id, "story_good")
 
 
 func test_save_store_round_trip() -> void:

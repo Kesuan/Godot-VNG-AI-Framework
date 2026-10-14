@@ -2,7 +2,7 @@ extends RefCounted
 
 const Util := preload("res://addons/vns/vns_util.gd")
 
-const DIRECTIVES := ["bg", "show", "hide", "bgm", "sfx", "set"]
+const DIRECTIVES := ["bg", "show", "hide", "bgm", "sfx", "set", "ending"]
 
 
 static func parse(source: String, file_path: String) -> Dictionary:
@@ -204,7 +204,20 @@ static func _parse_directive(line: String, file_path: String, line_number: int, 
 			return _parse_hide(parts, file_path, line_number, errors)
 		"set":
 			return _parse_set(parts, file_path, line_number, errors)
+		"ending":
+			return _parse_ending(parts, file_path, line_number, errors)
 	return {}
+
+
+static func _parse_ending(parts: PackedStringArray, file_path: String, line_number: int, errors: Array) -> Dictionary:
+	if parts.size() != 2:
+		Util.add_error(errors, file_path, line_number, 2, "@ending 用法: @ending <结局 id>")
+		return {}
+	var ending_id: String = parts[1]
+	if not Util.is_identifier(ending_id):
+		Util.add_error(errors, file_path, line_number, 2, "结局 id 无效: '%s'" % ending_id)
+		return {}
+	return {"op": "ending", "id": ending_id}
 
 
 static func _split_options(parts: PackedStringArray, start: int) -> Dictionary:

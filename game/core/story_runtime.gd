@@ -20,6 +20,7 @@ var step_index := 0
 var waiting := WAITING_NONE
 var ended := false
 var end_kind := END_NONE
+var ending_id := ""
 var cross_chapter_handler := Callable()
 var current_line: Dictionary = {}
 var current_choices: Array = []
@@ -118,6 +119,7 @@ func snapshot() -> Dictionary:
 		"waiting": waiting,
 		"ended": ended,
 		"end_kind": end_kind,
+		"ending_id": ending_id,
 		"line": current_line.duplicate(true),
 		"choices": current_choices.duplicate(true),
 		"flags": state.flags.duplicate(true),
@@ -134,6 +136,7 @@ func restore_state(data: Dictionary) -> void:
 	waiting = data.get("waiting", WAITING_NONE)
 	ended = bool(data.get("ended", false))
 	end_kind = data.get("end_kind", END_NONE)
+	ending_id = data.get("ending_id", "")
 	state.restore({"flags": data.get("flags", {}), "vars": data.get("vars", {})})
 	stage = (data.get("stage", {"bg": "", "chars": {}, "bgm": ""}) as Dictionary).duplicate(true)
 	warnings = []
@@ -193,12 +196,20 @@ func _execute(step: Dictionary) -> void:
 		"set":
 			_apply_set(step)
 			step_index += 1
+		"ending":
+			_apply_ending(step)
+			step_index += 1
 		"bg", "show", "hide", "bgm", "sfx":
 			_apply_presentation(op, step)
 			step_index += 1
 		_:
 			_fail("未知指令 '%s'" % op)
 			step_index += 1
+
+
+func _apply_ending(step: Dictionary) -> void:
+	ending_id = step.get("id", "")
+	_emit("ending_reached", {"id": ending_id, "node": node_id, "step": step_index})
 
 
 func _apply_set(step: Dictionary) -> void:

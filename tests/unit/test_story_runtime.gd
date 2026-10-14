@@ -149,6 +149,35 @@ func test_invalid_choice_index_records_error() -> void:
 	assert_eq(runtime.waiting, VngStoryRuntime.WAITING_CHOICE)
 
 
+func test_ending_directive_sets_id_and_event() -> void:
+	var chapter := {
+		"chapter": "ending_probe",
+		"nodes": {
+			"n": {
+				"id": "n",
+				"steps": [
+					{"op": "say", "who": "", "text": "结束了。"},
+					{"op": "ending", "id": "good_end"},
+					{"op": "goto", "target": "END"},
+				],
+			},
+		},
+	}
+	var services := VngServices.for_tests(1)
+	var runtime := VngStoryRuntime.new(services, chapter)
+	runtime.start("n")
+	runtime.advance()
+	assert_eq(runtime.ending_id, "good_end")
+	assert_true(runtime.ended)
+	assert_in("ending_reached", services.events.event_types())
+
+	var snapshot := runtime.snapshot()
+	var target := VngStoryRuntime.new(VngServices.for_tests(1), chapter)
+	target.start("n")
+	target.restore_state(snapshot)
+	assert_eq(target.ending_id, "good_end")
+
+
 func test_presentation_events_carry_fade() -> void:
 	var chapter := {
 		"chapter": "fade_probe",

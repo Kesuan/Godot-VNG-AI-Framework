@@ -110,3 +110,36 @@ func test_entry_for_uses_entries_then_free_fallback() -> void:
 	var legacy := _session({"manifest": {"entry": "chapter1.start", "chapters": ["chapter1"]}, "chapters": TwoChapter.build().chapters})
 	assert_eq(legacy.entry_for("chapter1"), "chapter1.start")
 	assert_eq(legacy.entry_for("chapter2"), "")
+
+
+func test_ending_is_exposed_on_finish() -> void:
+	var story := {
+		"manifest": {
+			"entry": "only.end",
+			"chapters": ["only"],
+			"endings": {"final_good": {"title": "好结局", "subtitle": "副标题"}},
+		},
+		"chapters": {
+			"only": {
+				"chapter": "only",
+				"nodes": {
+					"end": {
+						"id": "end",
+						"steps": [
+							{"op": "say", "who": "", "text": "结束。"},
+							{"op": "ending", "id": "final_good"},
+							{"op": "goto", "target": "END"},
+						],
+					},
+				},
+			},
+		},
+	}
+	var session := _session(story)
+	assert_true(session.start())
+	assert_eq(session.ending_id(), "")
+	session.advance()
+	assert_true(session.finished)
+	assert_eq(session.ending_id(), "final_good")
+	assert_eq(str(session.ending().get("title", "")), "好结局")
+	assert_eq(str(session.ending().get("subtitle", "")), "副标题")

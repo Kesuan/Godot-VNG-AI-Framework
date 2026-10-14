@@ -129,6 +129,21 @@ func test_story_end_and_cross_chapter_targets_parse() -> void:
 	assert_eq((steps_m[0] as Dictionary).get("target", ""), "chapter_two.other")
 
 
+func test_ending_directive_parses() -> void:
+	var source := "@chapter chapter_one\n\n:: n\n@ending good_end\n-> END\n"
+	var parsed := Parser.parse(source, FILE)
+	assert_true(parsed.ok, _messages(parsed.errors))
+	var steps: Array = ((parsed.chapter.nodes as Dictionary)["n"] as Dictionary).get("steps", [])
+	assert_eq((steps[0] as Dictionary).get("op", ""), "ending")
+	assert_eq((steps[0] as Dictionary).get("id", ""), "good_end")
+
+
+func test_ending_directive_requires_identifier() -> void:
+	var parsed := Parser.parse("@chapter chapter_one\n\n:: n\n@ending\n-> END\n", FILE)
+	assert_false(parsed.ok)
+	assert_true(_contains(parsed.errors, "@ending 用法"))
+
+
 func _messages(errors: Array) -> String:
 	var lines := PackedStringArray()
 	for error in errors:

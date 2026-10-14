@@ -32,6 +32,7 @@ static func lint(chapters: Dictionary, manifest: Dictionary, manifest_path := ""
 	_warn_unread_writes(chapters, writes, reads, warnings)
 	_validate_assets(chapters, manifest, errors)
 	_validate_characters(chapters, manifest, errors)
+	_validate_endings(chapters, manifest, manifest_path, errors, warnings)
 	_warn_trailing_steps(chapters, warnings)
 
 	Util.sort_diagnostics(errors)
@@ -307,6 +308,42 @@ static func _validate_characters(chapters: Dictionary, manifest: Dictionary, err
 					errors, src.get("file", ""), int(src.get("line", 0)), 1,
 					Util.suggest_message("角色未在 story.json 中登记", char_id, suggestion)
 				)
+
+
+static func _validate_endings(
+	chapters: Dictionary,
+	manifest: Dictionary,
+	manifest_path: String,
+	errors: Array,
+	warnings: Array
+) -> void:
+	var raw: Variant = manifest.get("endings", {})
+	var registered: Dictionary = {}
+	if raw is Dictionary:
+		registered = raw
+	elif manifest.has("endings"):
+		Util.add_error(errors, manifest_path, 1, 1, "story.json 的 endings 需为 结局 id → 信息 的映射")
+	var used := {}
+	for chapter_id in chapters:
+		var nodes: Dictionary = (chapters[chapter_id] as Dictionary).get("nodes", {})
+		for node_id in nodes:
+			for step in (nodes[node_id] as Dictionary).get("steps", []):
+				if (step as Dictionary).get("op", "") != "ending":
+					continue
+				var ending_id: String = (step as Dictionary).get("id", "")
+				var src: Dictionary = (step as Dictionary).get("src", {})
+				if registered.has(ending_id):
+					used[ending_id] = true
+					continue
+				var suggestion := Util.suggest(ending_id, registered.keys())
+				Util.add_error(
+					errors, src.get("file", ""), int(src.get("line", 0)), 1,
+					Util.suggest_message("结局未在 story.json 的 endings 中登记", ending_id, suggestion)
+				)
+	for ending_id in registered:
+		if used.has(ending_id):
+			continue
+		Util.add_warning(warnings, manifest_path, 1, 1, "结局 '%s' 已登记但没有任何 @ending 引用" % ending_id)
 
 
 static func _warn_trailing_steps(chapters: Dictionary, warnings: Array) -> void:

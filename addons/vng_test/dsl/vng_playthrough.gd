@@ -142,6 +142,11 @@ func expect_finished(message := "") -> VngPlaythrough:
 	return self
 
 
+func expect_ending(ending_id: String, message := "") -> VngPlaythrough:
+	_test.assert_eq(runtime.ending_id, ending_id, _m(message, "结局 id（%s）" % _context()))
+	return self
+
+
 func expect_no_errors(message := "") -> VngPlaythrough:
 	if session != null and not session.errors.is_empty():
 		var first_session: Dictionary = session.errors[0]

@@ -155,6 +155,20 @@ func snapshot() -> Dictionary:
 	}
 
 
+func ending_id() -> String:
+	return runtime.ending_id if runtime != null else ""
+
+
+func ending() -> Dictionary:
+	if runtime == null:
+		return {}
+	var endings: Dictionary = manifest.get("endings", {})
+	var info: Variant = endings.get(runtime.ending_id, {})
+	if info is Dictionary:
+		return info
+	return {}
+
+
 static func compute_story_hash(p_manifest: Dictionary, p_chapters: Dictionary) -> String:
 	var material: Array = []
 	for chapter_id in p_manifest.get("chapters", []):
@@ -212,7 +226,7 @@ func _settle() -> void:
 					advanced = true
 		if not advanced:
 			finished = true
-			_emit("story_finished", {})
+			_emit("story_finished", {"ending_id": ending_id()})
 
 
 func _fail(message: String) -> void:

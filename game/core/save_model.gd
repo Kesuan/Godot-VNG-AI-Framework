@@ -18,6 +18,7 @@ static func capture(runtime: VngStoryRuntime, services: VngServices, story_hash 
 		"vars": runtime.state.vars.duplicate(true),
 		"stage": runtime.stage.duplicate(true),
 		"line": runtime.current_line.duplicate(true),
+		"ending_id": runtime.ending_id,
 		"rng_state": services.rng.save_state(),
 		"play_time": services.clock.now(),
 	}

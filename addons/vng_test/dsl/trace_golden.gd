@@ -50,6 +50,8 @@ static func _reduce_entry(entry: Dictionary) -> Dictionary:
 			return {"type": type, "chapter": data.get("chapter", ""), "entry": data.get("entry", "")}
 		"chapter_finished":
 			return {"type": type, "chapter": data.get("chapter", "")}
+		"ending_reached":
+			return {"type": type, "id": data.get("id", "")}
 		"story_finished":
 			return {"type": type}
 		"session_error":
