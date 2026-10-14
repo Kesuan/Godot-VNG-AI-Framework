@@ -82,6 +82,7 @@ yuki: ……
 | 旁白 | `<text>` | 不以 `@ * -` 开头、无 speaker 前缀的行 |
 | 选项 | `* <text> [{cond}] -> <target>` | 每个选项必须带跳转目标 |
 | 跳转 | `-> <target>` | `node` / `chapter.node` / `END` / `STORY_END` |
+| 结局标记 | `@ending <id>` | 标记达成的结局，需在 `story.json` 的 `endings` 登记（见 [0008](0008-endings.md)） |
 | flag/变量 | `@set <name> = <expr>` / `@set <name> += <int>` | bool 与 int 两类 |
 | 演出指令 | `@bg @show @hide @bgm @sfx` | 运行时发出事件，presentation 层消费 |
 | 转义 | `\` 行首 | 文案需以特殊字符开头时使用 |
@@ -90,6 +91,7 @@ yuki: ……
 
 - 节点必须以跳转或选项结尾（显式退出，禁止隐式落到下一节点）——图分析因此无歧义。
 - 章节终结：`-> END` 结束当前章（存在下一章则自动推进到其 `entries` 入口；最后一章即全书结束）；`-> STORY_END` 提前终结全书；`-> chapter.node` 显式跨章跳转。详见 [0006](0006-multi-chapter-and-save.md)。
+- 结局：`@ending <id>` 标记达成的结局（`story.json` 的 `endings` 登记，linter 校验引用与未使用；详见 [0008](0008-endings.md)）；结束后进入结局页面。
 - 多章节剧本在 `story.json` 的 `entries` 为每章登记入口节点（多章时 linter 强制）；`chapters` 数组顺序即推进顺序。
 - 选项条件 `{...}` 使用受限表达式：`not && || () == != > >= < <=`，操作数为 flag/变量/字面量。
 - 资源以逻辑 id 引用，通过 `game/story/story.json` 清单解析；linter 校验存在性。

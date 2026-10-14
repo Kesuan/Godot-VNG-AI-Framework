@@ -93,6 +93,7 @@ yuki: 早上好！
 ```
 
 - 章节语义：`-> END` 结束当前章（存在下一章则自动进入其 `entries` 入口）；`-> STORY_END` 提前终结全书；多章剧本在 `story.json` 的 `entries` 登记每章入口（单章可省略）。
+- 结局：`@ending <id>` 标记达成的结局，id 需在 `story.json` 的 `endings` 登记（linter 校验未登记引用与未使用结局）；结束后 main 按 `session.ending()` 进入结局页面（见 [decision 0008](docs/decision/0008-endings.md)）。
 - 结构校验与 lint 一次性完成：`tools/story lint`；错误格式 `file:line:col: error: 消息（是否想写 'xxx'？）`，覆盖跳转断链、flag/变量 typo、资源/角色登记、节点可达性。
 - 剧本级测试（`tests/story/`）用 playthrough DSL：
 
@@ -121,6 +122,7 @@ play.expect_trace("chapter1_secret")
 - 表现层约定：只订阅 `services.events` 与推送 `VngCommand`，不直接改 core 状态；剧情屏通过 `story_screen.setup_session(services, session, display_names)` 注入（正式入口），`setup(services, chapter, node, display_names)` 是单章便捷包装（boot smoke 沿用）。
 - 存档/菜单（见 [decision 0006](docs/decision/0006-multi-chapter-and-save.md)）：游戏内 ESC 菜单读写 `VngSaveStore` 槽位（`auto` + `slot1`~`slot3`），进入新章自动写 `auto`；标题屏「继续」读最近写入（`save_seq` 最大）的存档，「读取存档」可直接选任意槽位。存档 v2 带 `story_hash`，改剧本后旧档被拒绝。
 - 体验层（见 [decision 0007](docs/decision/0007-ux-layer.md)）：标题/ESC 菜单可开设置（音量 / 文字速度 / 自动间隔，即时生效并持久化）；底栏「回顾 / 自动 / 跳过」与快捷键 `B / A / Ctrl` 并行；跳过只跳**已读**（内容哈希行 ID，文本改动视为未读），遇未读行 / 选项 / 面板停；回顾为本次会话（跨章）内存记录。输入动作 `vng_skip / vng_auto / vng_backlog` 由 `story_screen.ensure_input_actions()` 运行时注册。
+- 结局页面（见 [decision 0008](docs/decision/0008-endings.md)）：剧情屏 `finished` 后由 main 依据 `session.ending()` 决定进入 `ending_screen`（结局标题/副标题/回到标题）；无结局标记时回退直接回标题。
 - **表现层测试必须走真实输入路径**：用 `addons/vng_test/dsl/input_sim.gd` 的 `click(tree, pos)` / `press_action(tree, "ui_accept")`，不要直接调用场景内部方法；helper 处理 headless 窗口尺寸（1280×720）、局部坐标投递与 press/release（按钮在抬起时触发），见 [decision 0004](docs/decision/0004-presentation-testing.md)。
 - **场景类测试必须覆盖重入**（完成 → 销毁 → 重进）：事件订阅在 `_exit_tree` 解除；总线对失效 Callable 自动剪除，可用 `listener_count(type, true)` 断言原始槽位。
 - 修复类改动做"回退验证"：临时还原修复确认用例变红，防止测试失效。
@@ -174,10 +176,10 @@ vng-demo/               # 游戏工程（见「游戏工程」小节）
 
 ## 关键文档
 
-- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[0002](docs/decision/0002-story-dsl.md)、[0003](docs/decision/0003-game-project-structure.md)、[0004](docs/decision/0004-presentation-testing.md)、[0005](docs/decision/0005-asset-pipeline.md)、[0006](docs/decision/0006-multi-chapter-and-save.md)、[0007](docs/decision/0007-ux-layer.md)
+- 决策：[docs/decision/0001-testing-strategy-v1.md](docs/decision/0001-testing-strategy-v1.md)、[0002](docs/decision/0002-story-dsl.md)、[0003](docs/decision/0003-game-project-structure.md)、[0004](docs/decision/0004-presentation-testing.md)、[0005](docs/decision/0005-asset-pipeline.md)、[0006](docs/decision/0006-multi-chapter-and-save.md)、[0007](docs/decision/0007-ux-layer.md)、[0008](docs/decision/0008-endings.md)
 - 计划：[docs/plans/0001-test-framework-v1.md](docs/plans/0001-test-framework-v1.md)
 
 ## 当前阶段
 
-多章节运行时、存档/读档与体验层已完成：`END` 章末推进 / `STORY_END` / 存档 v2（自动 + 3 手动槽 + 标题继续/选档）；设置（音量 / 文字速度 / 自动间隔）、跳过已读、自动播放、回顾（本次会话）；vng-demo 为双章剧本《雨夜车站》。
+多章节、存档/读档、体验层与结局页面已完成：三章剧本 + `@ending` 多结局（登记/lint/存档/trace）+ 结局页面；设置（音量 / 文字速度 / 自动间隔）、跳过已读、自动播放、回顾（本次会话）。
 下一步候选：TTS 配音管线（行 ID 已就绪，可对接 TTS-WorkSpace）、真实音频素材投放（3 项）、`vng-demo` 导出配置、CI（GitHub Actions）。

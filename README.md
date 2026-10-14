@@ -20,7 +20,7 @@ Agent 的迭代闭环质量 = **反馈信号的质量 × 速度**。不可复现
 - **剧本 DSL（`.vns`）**：编译为规范 JSON；静态 lint 覆盖断链、flag typo、资源/角色登记、节点可达性，错误带行号与 did-you-mean
 - **playthrough DSL + trace golden**：语义事件轨迹（不含行号与时间戳），更新必须显式批准并写审计日志
 - **确定性 core**：Rng / Clock / InputHub / EventBus 服务注入；core 零 Node 依赖，headless 直接单测
-- **多章节与存档**：`END` 章末自动推进 / `STORY_END` 提前终结；会话跨章延续状态；存档 v2（`story_hash` + `play_time`）、自动 + 3 手动槽、标题「继续」
+- **多章节、结局与存档**：`END` 章末自动推进 / `STORY_END` 提前终结；`@ending` 多结局 + 结局页面；存档 v2（`story_hash` + `play_time`）、自动 + 3 手动槽、标题「继续」
 - **体验层**：设置（音量 / 文字速度 / 自动间隔，持久化）；跳过已读（内容哈希行 ID，文本改动即未读）；自动播放；回顾（会话内跨章，含选项）
 - **表现层测试走真实输入路径**：鼠标/键盘仿真经过真实 GUI 拾取与输入路由；场景重入有回归测试
 - **资源管线**：零素材可用、投放即生效（免导入）；`tools/demo assets` 列出待投放清单
@@ -31,9 +31,9 @@ Agent 的迭代闭环质量 = **反馈信号的质量 × 速度**。不可复现
 
 ```bash
 tools/test --fast          # 框架单元测试（秒级）
-tools/test                 # 全量：框架 168 项（unit / meta 契约 / story E2E）
-tools/demo run             # 体验示例游戏《雨夜车站》（双章 + 存档 + 体验层）
-tools/demo test            # 游戏侧 28 项（story / 存档 / 体验 / smoke / 资源管线）
+tools/test                 # 全量：框架 174 项（unit / meta 契约 / story E2E）
+tools/demo run             # 体验示例游戏《雨夜车站》（三章 + 3 结局 + 存档 + 体验层）
+tools/demo test            # 游戏侧 30 项（story / 结局 / 存档 / 体验 / smoke / 资源管线）
 tools/lint                 # 格式 + 静态 + 非确定性 API 扫描
 ```
 
@@ -60,13 +60,16 @@ docs/              # 决策记录（ADR）与实施计划
 | [0003 工程结构](docs/decision/0003-game-project-structure.md) | 框架/游戏镜像与 `tools/demo` |
 | [0004 表现层测试](docs/decision/0004-presentation-testing.md) | 输入仿真、重入测试、引擎错误归因 |
 | [0005 资源管线](docs/decision/0005-asset-pipeline.md) | 目录约定、回退链与就位报告 |
+| [0006 多章节与存档](docs/decision/0006-multi-chapter-and-save.md) | `END`/`STORY_END`、存档 v2 与槽位 |
+| [0007 体验层](docs/decision/0007-ux-layer.md) | 设置、跳过已读、自动播放、回顾 |
+| [0008 结局](docs/decision/0008-endings.md) | `@ending` 登记、lint 与结局页面 |
 | [AGENTS.md](AGENTS.md) | Agent 工作规范与命令契约 |
 | [示例游戏](vng-demo/README.md) · [素材需求](vng-demo/ASSETS.md) | 运行/验收清单与素材清单 |
 
 ## 当前状态
 
-- 《雨夜车站》双章可玩（[标题画面](docs/assets/demo-title.png)）：标题 → 第一章分支 → 章末自动进入第二章《清晨》尾声 → 回标题；存档（继续 / 选档）与体验层（设置 / 跳过已读 / 自动 / 回顾）就绪
-- 测试：框架 168 项、游戏 28 项，全绿
+- 《雨夜车站》三章可玩（[标题画面](docs/assets/demo-title.png)）：第一章分支 → 第二/三章推进 → 3 个结局（`@ending` 登记）→ [结局页面](docs/assets/demo-ending.png) → 回标题；存档（继续 / 选档）与体验层（设置 / 跳过已读 / 自动 / 回顾）就绪
+- 测试：框架 174 项、游戏 30 项，全绿
 - 下一步候选：TTS 配音管线（行 ID 已就绪）、真实音频素材投放（3 项）、`vng-demo` 导出配置、CI
 
 ## 许可

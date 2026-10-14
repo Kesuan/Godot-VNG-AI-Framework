@@ -14,9 +14,9 @@ tools/demo story build  # 修改 .vns 后重新编译
 
 ```
 vng-demo/
-├── game/presentation/   # 表现层：main / title_screen / story_screen / menu_overlay / settings_panel / backlog_panel / stage / audio_director
-├── game/story/          # 剧本：story.json 清单 + chapter1.vns + chapter2.vns（编译产物 compiled/）
-├── tests/               # 游戏测试：story 路线 + trace golden + 存档/菜单 + 体验层 + boot smoke
+├── game/presentation/   # 表现层：main / title_screen / story_screen / ending_screen / menu_overlay / settings_panel / backlog_panel / stage / audio_director
+├── game/story/          # 剧本：story.json 清单 + chapter1~3.vns（编译产物 compiled/）
+├── tests/               # 游戏测试：story 路线 + 结局页 + trace golden + 存档/菜单 + 体验层 + boot smoke
 ├── assets/audio/        # 音频资源目录（切片阶段为空，接口已留）
 ├── addons/              # ← 框架镜像（tools/demo sync 生成，勿手改）
 └── game/core,game/services/  # ← 框架镜像（同上）
@@ -35,6 +35,7 @@ vng-demo/
 - 标题屏「继续游戏」：读取**最近写入**的存档（无存档时隐藏）
 - 标题屏「读取存档」：直接选择具体槽位（自动 / 存档 1–3）
 - 标题屏 / ESC 菜单「设置」：BGM / 音效音量、文字速度（慢/标准/快/瞬间）、自动间隔；即时生效并持久化
+- 结局：达成 3 个结局之一后进入结局页面（结局名 / 副标题），点「回到标题」返回
 
 ## 手动验收清单（第一条可玩切片）
 
@@ -42,8 +43,9 @@ vng-demo/
 - [ ] 「开始游戏」→ 背景与立绘出现，旁白/对白逐字显示
 - [ ] 第一次点击补全当前行，再点一次进入下一行
 - [ ] 选项出现时以按钮菜单呈现，鼠标与空格（焦点）都可选择
-- [ ] 「把伞递过去」→ 凛的立绘位置变为中央 → 平台 → 咖啡馆路线 → 第二章《清晨》尾声 → 结束回标题
-- [ ] 「什么都不做」→ 平台只显示「独自离开车站」→ 章末 `END` 自动进入第二章
+- [ ] 「把伞递过去」→ 咖啡馆路线 → 第二章《清晨》 → 第三章《余雨》「去赴约」→ 结局 · 伞下的约定 → 结局页面 → 回到标题
+- [ ] 「什么都不做」→ 「独自离开车站」→ 第三章「去车站看看」→ 结局 · 各自的路；或「待在家里」→ 结局 · 一个人的雨
+- [ ] 结局页面显示 结局名 + 副标题；「回到标题」后「继续游戏」可回到最近存档
 - [ ] 游戏中 ESC 打开菜单；「保存游戏」写入存档 1，槽位显示 章节·时长·台词预览
 - [ ] 「回到标题」→「继续游戏」读回最近写入的档；「读取存档」可直接选任意槽位
 - [ ] 「读取游戏」可载入自动档（进入章节时自动写入）
@@ -51,7 +53,7 @@ vng-demo/
 - [ ] 底栏「自动」开启后自动推进，到选项停；再点关闭
 - [ ] `B` 或底栏「回顾」：能看到本轮对白/旁白/选项与章节标题，可滚动，ESC 关闭
 - [ ] 设置面板：文字速度改为「瞬间」后立即整行显示；音量滑到 0 后音频静音（音频投放后验证）
-- [ ] 结束后淡出回到标题，可再次开始；全程无脚本报错
+- [ ] 通关任一结局后回到标题，可再次开始；全程无脚本报错
 - [ ] `tools/demo test` 全绿；`tools/demo story check` 通过
 
 ## 资源投放（真实美术/音频）
