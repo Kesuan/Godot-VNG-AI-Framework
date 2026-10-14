@@ -1,0 +1,364 @@
+{
+	"chapter": "chapter3",
+	"nodes": {
+		"cafe_meet": {
+			"id": "cafe_meet",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 12
+			},
+			"steps": [
+				{
+					"asset": "cafe_night",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 13
+					}
+				},
+				{
+					"char": "rin",
+					"expr": "smile",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 14
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 15
+					},
+					"text": "你来了。",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 16
+					},
+					"text": "那把伞……我一直带着。",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 17
+					},
+					"text": "窗外的雨声，听起来比昨晚温柔了一些。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 18
+							},
+							"target": "ending_promise",
+							"text": "约好下次再见"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 19
+							},
+							"target": "ending_parting",
+							"text": "道过谢，然后告别"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 18
+					}
+				}
+			]
+		},
+		"ending_parting": {
+			"id": "ending_parting",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 41
+			},
+			"steps": [
+				{
+					"char": "rin",
+					"op": "hide",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 42
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 43
+					},
+					"text": "你没有再回头。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 44
+					},
+					"text": "有些相遇，只属于一个夜晚。",
+					"who": ""
+				},
+				{
+					"id": "ending_parting",
+					"op": "ending",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 45
+					}
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 46
+					},
+					"target": "END"
+				}
+			]
+		},
+		"ending_promise": {
+			"id": "ending_promise",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 34
+			},
+			"steps": [
+				{
+					"char": "rin",
+					"expr": "smile",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 35
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 36
+					},
+					"text": "那……明天见？",
+					"who": "rin"
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 37
+					},
+					"text": "你点了点头。这一次，不是告别。",
+					"who": ""
+				},
+				{
+					"id": "ending_promise",
+					"op": "ending",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 38
+					}
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 39
+					},
+					"target": "END"
+				}
+			]
+		},
+		"evening": {
+			"id": "evening",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 4
+			},
+			"steps": [
+				{
+					"asset": "station_rain",
+					"op": "bg",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 5
+					}
+				},
+				{
+					"asset": "bgm_rain",
+					"op": "bgm",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 6
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 7
+					},
+					"text": "第二天傍晚，雨又下了起来。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"cond": "shared_umbrella",
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 8
+							},
+							"target": "cafe_meet",
+							"text": "去赴约"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 9
+							},
+							"target": "platform_look",
+							"text": "去车站看看"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 10
+							},
+							"target": "stay_home",
+							"text": "待在家里"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 8
+					}
+				}
+			]
+		},
+		"platform_look": {
+			"id": "platform_look",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 21
+			},
+			"steps": [
+				{
+					"char": "rin",
+					"expr": "normal",
+					"op": "show",
+					"pos": "center",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 22
+					}
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 23
+					},
+					"text": "站台的长椅旁，凛望着铁轨的方向。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 24
+					},
+					"text": "她没有撑伞。",
+					"who": ""
+				},
+				{
+					"op": "choice",
+					"options": [
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 25
+							},
+							"target": "ending_promise",
+							"text": "走过去"
+						},
+						{
+							"src": {
+								"file": "res://game/story/chapter3.vns",
+								"line": 26
+							},
+							"target": "ending_parting",
+							"text": "远远看了一会儿，转身离开"
+						}
+					],
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 25
+					}
+				}
+			]
+		},
+		"stay_home": {
+			"id": "stay_home",
+			"src": {
+				"file": "res://game/story/chapter3.vns",
+				"line": 28
+			},
+			"steps": [
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 29
+					},
+					"text": "雨声隔着窗，变得很远。",
+					"who": ""
+				},
+				{
+					"op": "say",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 30
+					},
+					"text": "你翻出那条编辑了很久的消息，最后还是没有发出去。",
+					"who": ""
+				},
+				{
+					"id": "ending_alone",
+					"op": "ending",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 31
+					}
+				},
+				{
+					"op": "goto",
+					"src": {
+						"file": "res://game/story/chapter3.vns",
+						"line": 32
+					},
+					"target": "END"
+				}
+			]
+		}
+	},
+	"schema": 1,
+	"source": "res://game/story/chapter3.vns",
+	"source_hash": "576d417d12e33a7dbf5a8b6ec9d811b297d79a8bd616cb8742b71d8a3f64f373"
+}

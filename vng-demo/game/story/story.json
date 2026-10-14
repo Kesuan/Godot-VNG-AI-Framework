@@ -3,13 +3,29 @@
 	"entry": "chapter1.prologue",
 	"entries": {
 		"chapter1": "prologue",
-		"chapter2": "morning"
+		"chapter2": "morning",
+		"chapter3": "evening"
 	},
 	"titles": {
 		"chapter1": "第一章 · 雨夜",
-		"chapter2": "第二章 · 清晨"
+		"chapter2": "第二章 · 清晨",
+		"chapter3": "第三章 · 余雨"
 	},
-	"chapters": ["chapter1", "chapter2"],
+	"endings": {
+		"ending_promise": {
+			"title": "结局 · 伞下的约定",
+			"subtitle": "雨停之后，还有下一次见面。"
+		},
+		"ending_parting": {
+			"title": "结局 · 各自的路",
+			"subtitle": "有些相遇，只属于一个夜晚。"
+		},
+		"ending_alone": {
+			"title": "结局 · 一个人的雨",
+			"subtitle": "你把那一晚，留在了原地。"
+		}
+	},
+	"chapters": ["chapter1", "chapter2", "chapter3"],
 	"characters": {
 		"rin": {"name": "凛"},
 		"announcer": {"name": "站务员"}

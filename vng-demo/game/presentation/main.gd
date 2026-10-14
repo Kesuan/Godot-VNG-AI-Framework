@@ -3,6 +3,7 @@ extends Node
 const VnsStoryLoader := preload("res://addons/vns/vns_story.gd")
 const TitleScreenScene := preload("res://game/presentation/title_screen.tscn")
 const StoryScreenScene := preload("res://game/presentation/story_screen.tscn")
+const EndingScreenScene := preload("res://game/presentation/ending_screen.tscn")
 const MenuOverlayScene := preload("res://game/presentation/menu_overlay.tscn")
 const SettingsPanelScene := preload("res://game/presentation/settings_panel.tscn")
 const SaveSlotInfoScript := preload("res://game/presentation/save_slot_info.gd")
@@ -128,8 +129,23 @@ func _show_story(session: VngStorySession) -> void:
 	_close_settings()
 	var screen: Node = StoryScreenScene.instantiate()
 	screen.setup_session(services, session, _display_names())
-	screen.finished.connect(_show_title)
+	screen.finished.connect(_on_story_finished.bind(session))
 	screen.title_requested.connect(_show_title)
+	_swap_screen(screen)
+
+
+func _on_story_finished(session: VngStorySession) -> void:
+	var ending: Dictionary = session.ending()
+	if ending.is_empty():
+		_show_title()
+		return
+	_show_ending(ending)
+
+
+func _show_ending(ending: Dictionary) -> void:
+	var screen: Node = EndingScreenScene.instantiate()
+	screen.setup(ending)
+	screen.continue_requested.connect(_show_title)
 	_swap_screen(screen)
 
 

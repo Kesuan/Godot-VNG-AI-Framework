@@ -202,9 +202,116 @@
 			"type": "story_ended"
 		},
 		{
+			"chapter": "chapter2",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter3",
+			"entry": "evening",
+			"type": "chapter_started"
+		},
+		{
+			"node": "evening",
+			"type": "node_entered"
+		},
+		{
+			"asset": "station_rain",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"text": "第二天傍晚，雨又下了起来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"去赴约",
+				"去车站看看",
+				"待在家里"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 0,
+			"text": "去赴约",
+			"type": "choice_selected"
+		},
+		{
+			"node": "cafe_meet",
+			"type": "node_entered"
+		},
+		{
+			"asset": "cafe_night",
+			"type": "bg_changed"
+		},
+		{
+			"char": "rin",
+			"expr": "smile",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "你来了。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "那把伞……我一直带着。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "窗外的雨声，听起来比昨晚温柔了一些。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"约好下次再见",
+				"道过谢，然后告别"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 0,
+			"text": "约好下次再见",
+			"type": "choice_selected"
+		},
+		{
+			"node": "ending_promise",
+			"type": "node_entered"
+		},
+		{
+			"char": "rin",
+			"expr": "smile",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "那……明天见？",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "你点了点头。这一次，不是告别。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"id": "ending_promise",
+			"type": "ending_reached"
+		},
+		{
+			"type": "story_ended"
+		},
+		{
 			"type": "story_finished"
 		}
 	],
-	"name": "chapter1_umbrella",
+	"name": "route_umbrella_promise",
 	"schema": 1
 }

@@ -159,9 +159,68 @@
 			"type": "story_ended"
 		},
 		{
+			"chapter": "chapter2",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter3",
+			"entry": "evening",
+			"type": "chapter_started"
+		},
+		{
+			"node": "evening",
+			"type": "node_entered"
+		},
+		{
+			"asset": "station_rain",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"text": "第二天傍晚，雨又下了起来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"去车站看看",
+				"待在家里"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 2,
+			"text": "待在家里",
+			"type": "choice_selected"
+		},
+		{
+			"node": "stay_home",
+			"type": "node_entered"
+		},
+		{
+			"text": "雨声隔着窗，变得很远。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "你翻出那条编辑了很久的消息，最后还是没有发出去。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"id": "ending_alone",
+			"type": "ending_reached"
+		},
+		{
+			"type": "story_ended"
+		},
+		{
 			"type": "story_finished"
 		}
 	],
-	"name": "chapter1_alone",
+	"name": "route_alone_home",
 	"schema": 1
 }

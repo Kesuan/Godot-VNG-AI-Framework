@@ -1,0 +1,46 @@
+# 雨夜车站 · 第三章（余雨）
+@chapter chapter3
+
+:: evening
+@bg station_rain
+@bgm bgm_rain
+第二天傍晚，雨又下了起来。
+* 去赴约 {shared_umbrella} -> cafe_meet
+* 去车站看看 -> platform_look
+* 待在家里 -> stay_home
+
+:: cafe_meet
+@bg cafe_night
+@show rin smile center
+rin: 你来了。
+rin: 那把伞……我一直带着。
+窗外的雨声，听起来比昨晚温柔了一些。
+* 约好下次再见 -> ending_promise
+* 道过谢，然后告别 -> ending_parting
+
+:: platform_look
+@show rin normal center
+站台的长椅旁，凛望着铁轨的方向。
+她没有撑伞。
+* 走过去 -> ending_promise
+* 远远看了一会儿，转身离开 -> ending_parting
+
+:: stay_home
+雨声隔着窗，变得很远。
+你翻出那条编辑了很久的消息，最后还是没有发出去。
+@ending ending_alone
+-> END
+
+:: ending_promise
+@show rin smile center
+rin: 那……明天见？
+你点了点头。这一次，不是告别。
+@ending ending_promise
+-> END
+
+:: ending_parting
+@hide rin
+你没有再回头。
+有些相遇，只属于一个夜晚。
+@ending ending_parting
+-> END

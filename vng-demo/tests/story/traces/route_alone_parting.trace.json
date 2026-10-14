@@ -1,0 +1,262 @@
+{
+	"events": [
+		{
+			"chapter": "chapter1",
+			"entry": "prologue",
+			"type": "chapter_started"
+		},
+		{
+			"node": "prologue",
+			"type": "node_entered"
+		},
+		{
+			"asset": "station_rain",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"asset": "thunder",
+			"type": "sfx_played"
+		},
+		{
+			"char": "rin",
+			"expr": "normal",
+			"pos": "left",
+			"type": "char_shown"
+		},
+		{
+			"text": "雨点砸在站台的顶棚上，风把雨丝吹进来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "你收起伞，看见长椅旁站着一个湿透的女孩。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "……末班车，停运了。",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "你犹豫了一下。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"把伞递过去",
+				"什么都不做"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 1,
+			"text": "什么都不做",
+			"type": "choice_selected"
+		},
+		{
+			"node": "do_nothing",
+			"type": "node_entered"
+		},
+		{
+			"text": "你把目光移向漆黑的铁轨。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "……",
+			"type": "line_shown",
+			"who": "rin"
+		},
+		{
+			"text": "雨声盖过了沉默。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"node": "platform",
+			"type": "node_entered"
+		},
+		{
+			"asset": "stop",
+			"type": "bgm_changed"
+		},
+		{
+			"asset": "bell",
+			"type": "sfx_played"
+		},
+		{
+			"text": "站台的广播响了起来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "由于暴雨，今晚所有列车停运，请改乘明早第一班。",
+			"type": "line_shown",
+			"who": "announcer"
+		},
+		{
+			"text": "凛看向你。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"独自离开车站"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 1,
+			"text": "独自离开车站",
+			"type": "choice_selected"
+		},
+		{
+			"node": "leave_alone",
+			"type": "node_entered"
+		},
+		{
+			"char": "rin",
+			"type": "char_hidden"
+		},
+		{
+			"text": "你独自走进雨里。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"type": "story_ended"
+		},
+		{
+			"chapter": "chapter1",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter2",
+			"entry": "morning",
+			"type": "chapter_started"
+		},
+		{
+			"node": "morning",
+			"type": "node_entered"
+		},
+		{
+			"text": "雨下了一整夜，清晨的车站亮起了灯。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "你走进检票口。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"type": "story_ended"
+		},
+		{
+			"chapter": "chapter2",
+			"type": "chapter_finished"
+		},
+		{
+			"chapter": "chapter3",
+			"entry": "evening",
+			"type": "chapter_started"
+		},
+		{
+			"node": "evening",
+			"type": "node_entered"
+		},
+		{
+			"asset": "station_rain",
+			"type": "bg_changed"
+		},
+		{
+			"asset": "bgm_rain",
+			"type": "bgm_changed"
+		},
+		{
+			"text": "第二天傍晚，雨又下了起来。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"去车站看看",
+				"待在家里"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 1,
+			"text": "去车站看看",
+			"type": "choice_selected"
+		},
+		{
+			"node": "platform_look",
+			"type": "node_entered"
+		},
+		{
+			"char": "rin",
+			"expr": "normal",
+			"pos": "center",
+			"type": "char_shown"
+		},
+		{
+			"text": "站台的长椅旁，凛望着铁轨的方向。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "她没有撑伞。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"options": [
+				"走过去",
+				"远远看了一会儿，转身离开"
+			],
+			"type": "choice_presented"
+		},
+		{
+			"index": 1,
+			"text": "远远看了一会儿，转身离开",
+			"type": "choice_selected"
+		},
+		{
+			"node": "ending_parting",
+			"type": "node_entered"
+		},
+		{
+			"char": "rin",
+			"type": "char_hidden"
+		},
+		{
+			"text": "你没有再回头。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"text": "有些相遇，只属于一个夜晚。",
+			"type": "line_shown",
+			"who": ""
+		},
+		{
+			"id": "ending_parting",
+			"type": "ending_reached"
+		},
+		{
+			"type": "story_ended"
+		},
+		{
+			"type": "story_finished"
+		}
+	],
+	"name": "route_alone_parting",
+	"schema": 1
+}
