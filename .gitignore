@@ -5,6 +5,9 @@
 test-results/*
 !test-results/.gitkeep
 
+# 本地剧本草稿（工作稿，不入库）
+drafts/
+
 # macOS
 .DS_Store
 
