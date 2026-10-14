@@ -44,6 +44,10 @@ text = "保存游戏"
 custom_minimum_size = Vector2(400, 52)
 text = "读取游戏"
 
+[node name="SettingsButton" type="Button" parent="Panel/MenuButtons"]
+custom_minimum_size = Vector2(400, 52)
+text = "设置"
+
 [node name="TitleButton" type="Button" parent="Panel/MenuButtons"]
 custom_minimum_size = Vector2(400, 52)
 text = "回到标题"

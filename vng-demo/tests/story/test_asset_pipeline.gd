@@ -84,9 +84,9 @@ func test_asset_library_caches_and_records_missing() -> void:
 
 
 func _start_screen(chapter: Dictionary) -> Control:
-	var services := VngServices.new(3)
+	var services := VngServices.for_tests(3)
+	services.settings.text_speed = 100000.0
 	var screen: Control = StoryScreenScene.instantiate()
-	screen.typewriter_cps = 100000.0
 	screen.setup(services, chapter, "start", {}, AssetLibraryScript.new(ASSET_ROOT))
 	VngRun.tree.root.add_child(screen)
 	await VngRun.tree.process_frame

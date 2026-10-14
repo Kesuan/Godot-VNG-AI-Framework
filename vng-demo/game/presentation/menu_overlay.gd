@@ -7,6 +7,7 @@ signal resume_requested
 signal title_requested
 signal save_requested
 signal load_requested
+signal settings_requested
 signal slot_selected(slot: String)
 signal closed
 
@@ -25,6 +26,7 @@ func _ready() -> void:
 	_menu_buttons.get_node("ResumeButton").pressed.connect(_on_resume_pressed)
 	_menu_buttons.get_node("SaveButton").pressed.connect(_on_save_pressed)
 	_menu_buttons.get_node("LoadButton").pressed.connect(_on_load_pressed)
+	_menu_buttons.get_node("SettingsButton").pressed.connect(_on_settings_pressed)
 	_menu_buttons.get_node("TitleButton").pressed.connect(_on_title_pressed)
 	_back_button.pressed.connect(_on_back_pressed)
 	hide()
@@ -102,6 +104,10 @@ func _on_save_pressed() -> void:
 
 func _on_load_pressed() -> void:
 	load_requested.emit()
+
+
+func _on_settings_pressed() -> void:
+	settings_requested.emit()
 
 
 func _on_title_pressed() -> void:

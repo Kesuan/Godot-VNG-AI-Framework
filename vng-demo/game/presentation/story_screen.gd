@@ -8,6 +8,13 @@ const AudioDirectorScript := preload("res://game/presentation/audio_director.gd"
 const AssetLibraryScript := preload("res://game/presentation/asset_library.gd")
 const MenuOverlayScript := preload("res://game/presentation/menu_overlay.gd")
 const SaveSlotInfoScript := preload("res://game/presentation/save_slot_info.gd")
+const SettingsPanelScene := preload("res://game/presentation/settings_panel.tscn")
+const BacklogPanelScene := preload("res://game/presentation/backlog_panel.tscn")
+
+const ACTION_SKIP := "vng_skip"
+const ACTION_AUTO := "vng_auto"
+const ACTION_BACKLOG := "vng_backlog"
+const BACKLOG_CAP := 400
 
 var typewriter_cps := 45.0
 
@@ -20,6 +27,9 @@ var typewriter_cps := 45.0
 @onready var _fade: ColorRect = $Fade
 @onready var _menu: MenuOverlayScript = $MenuOverlay
 @onready var _chapter_card: Label = $ChapterCard
+@onready var _backlog_button: Button = $BottomBar/BacklogButton
+@onready var _auto_button: Button = $BottomBar/AutoButton
+@onready var _skip_button: Button = $BottomBar/SkipButton
 
 var services: VngServices
 var runtime: VngStoryRuntime
@@ -34,6 +44,30 @@ var _line_length := 0
 var _visible_chars := 0.0
 var _fade_tween: Tween = null
 var _card_tween: Tween = null
+
+var _read_log: VngReadLog = null
+var _current_line_read := false
+var _skip_held := false
+var _auto := false
+var _auto_timer := 0.0
+var _history: Array = []
+var _backlog: Control = null
+var _settings_panel: Control = null
+
+
+static func ensure_input_actions() -> void:
+	if InputMap.has_action(ACTION_SKIP):
+		return
+	_add_key_action(ACTION_SKIP, KEY_CTRL)
+	_add_key_action(ACTION_AUTO, KEY_A)
+	_add_key_action(ACTION_BACKLOG, KEY_B)
+
+
+static func _add_key_action(action: String, keycode: Key) -> void:
+	InputMap.add_action(action)
+	var event := InputEventKey.new()
+	event.keycode = keycode
+	InputMap.action_add_event(action, event)
 
 
 func setup(
@@ -72,16 +106,26 @@ func _ready() -> void:
 	services = _setup_args.services
 	session = _setup_args.session
 	save_store = VngSaveStore.new(services.save_root)
+	_read_log = services.read_log
+	_read_log.bind(session.story_hash)
+	ensure_input_actions()
 	services.input.clear()
 	services.events.clear()
 	services.events.subscribe("*", _on_event)
 	_stage.assets = assets
 	_audio.assets = assets
+	_audio.apply_settings(services.settings)
+	typewriter_cps = services.settings.text_speed
 	_menu.resume_requested.connect(_on_menu_resume)
 	_menu.save_requested.connect(_open_save_menu)
 	_menu.load_requested.connect(_open_load_menu)
+	_menu.settings_requested.connect(_open_settings)
 	_menu.title_requested.connect(_on_menu_title)
 	_menu.slot_selected.connect(_on_slot_selected)
+	_backlog_button.pressed.connect(_toggle_backlog)
+	_auto_button.toggled.connect(_on_auto_toggled)
+	_skip_button.button_down.connect(_on_skip_button_down)
+	_skip_button.button_up.connect(_on_skip_button_up)
 	_fade.modulate.a = 1.0
 	var needs_repaint := session.runtime != null
 	if not needs_repaint:
@@ -105,6 +149,8 @@ func _process(delta: float) -> void:
 		session.pump()
 		if session.runtime != null:
 			runtime = session.runtime
+	_tick_skip()
+	_tick_auto(delta)
 
 
 func _exit_tree() -> void:
@@ -118,9 +164,27 @@ func _unhandled_input(event: InputEvent) -> void:
 	if services == null:
 		return
 	if event.is_action_pressed("ui_cancel"):
+		if is_backlog_open():
+			_backlog.close()
+			return
+		if is_settings_open():
+			_settings_panel.close()
+			return
 		_toggle_menu()
 		return
-	if _menu.is_open():
+	if event.is_action_released(ACTION_SKIP):
+		_skip_held = false
+		return
+	if event.is_action_pressed(ACTION_SKIP):
+		_skip_held = true
+		return
+	if event.is_action_pressed(ACTION_AUTO):
+		_set_auto(not _auto)
+		return
+	if event.is_action_pressed(ACTION_BACKLOG):
+		_toggle_backlog()
+		return
+	if _menu.is_open() or is_backlog_open() or is_settings_open():
 		return
 	if event.is_action_pressed("ui_accept"):
 		request_advance()
@@ -134,7 +198,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func request_advance() -> void:
 	if session == null or session.finished or runtime == null:
 		return
-	if _menu.is_open():
+	if _menu.is_open() or is_backlog_open() or is_settings_open():
 		return
 	if _typing:
 		_finish_typing()
@@ -148,6 +212,34 @@ func is_typing() -> bool:
 	return _typing
 
 
+func is_auto() -> bool:
+	return _auto
+
+
+func is_skipping() -> bool:
+	return _skip_held and _current_line_read
+
+
+func is_backlog_open() -> bool:
+	return _backlog != null and is_instance_valid(_backlog) and _backlog.is_open()
+
+
+func is_settings_open() -> bool:
+	return _settings_panel != null and is_instance_valid(_settings_panel) and _settings_panel.is_open()
+
+
+func backlog_entries() -> Array:
+	return _history.duplicate(true)
+
+
+func backlog_panel() -> Control:
+	return _backlog
+
+
+func settings_panel() -> Control:
+	return _settings_panel
+
+
 func _finish_typing() -> void:
 	_typing = false
 	_visible_chars = float(_line_length)
@@ -159,8 +251,15 @@ func _on_event(entry: Dictionary) -> void:
 	match entry.get("type", ""):
 		"line_shown":
 			_show_line(data)
+			_append_history({
+				"type": "say",
+				"who": str(display_names.get(str(data.get("who", "")), str(data.get("who", "")))),
+				"text": str(data.get("text", "")),
+			})
 		"choice_presented":
 			_show_choices(data)
+		"choice_selected":
+			_append_history({"type": "choice", "text": str(data.get("text", ""))})
 		"bg_changed", "char_shown", "char_hidden":
 			_handle_stage_event(entry.get("type", ""), data)
 		"bgm_changed":
@@ -169,6 +268,7 @@ func _on_event(entry: Dictionary) -> void:
 			_audio.play_sfx(data.get("asset", ""))
 		"chapter_started":
 			_on_chapter_started(data)
+			_append_history({"type": "chapter", "text": session.chapter_title(str(data.get("chapter", "")))})
 		"story_finished":
 			_on_story_finished()
 
@@ -191,8 +291,18 @@ func _show_line(data: Dictionary) -> void:
 	var text: String = data.get("text", "")
 	_text_label.text = text
 	_line_length = text.length()
+	var key := VngReadLog.line_key(who, text)
+	if _read_log != null:
+		_current_line_read = _read_log.is_read(key)
+		_read_log.mark_read(key)
+	else:
+		_current_line_read = false
+	_auto_timer = 0.0
+	if typewriter_cps <= 0.0 or _line_length == 0:
+		_finish_typing()
+		return
 	_visible_chars = 0.0
-	_typing = _line_length > 0
+	_typing = true
 	_text_label.visible_characters = 0
 
 
@@ -224,6 +334,93 @@ func _clear_choices() -> void:
 		child.queue_free()
 
 
+func _tick_skip() -> void:
+	if not _skip_held or not _current_line_read:
+		return
+	if not _can_fast_forward():
+		return
+	_finish_typing()
+	services.input.push(VngCommand.advance())
+
+
+func _tick_auto(delta: float) -> void:
+	if not _auto or _skip_held:
+		return
+	if not _can_fast_forward() or _typing:
+		return
+	_auto_timer += delta
+	if _auto_timer >= services.settings.auto_delay:
+		_auto_timer = 0.0
+		services.input.push(VngCommand.advance())
+
+
+func _can_fast_forward() -> bool:
+	return (
+		session != null
+		and not session.finished
+		and runtime != null
+		and runtime.waiting == VngStoryRuntime.WAITING_SAY
+		and not _menu.is_open()
+		and not is_backlog_open()
+		and not is_settings_open()
+	)
+
+
+func _set_auto(enabled: bool) -> void:
+	_auto = enabled
+	_auto_timer = 0.0
+	if is_instance_valid(_auto_button):
+		_auto_button.set_pressed_no_signal(enabled)
+
+
+func _on_auto_toggled(pressed: bool) -> void:
+	_set_auto(pressed)
+
+
+func _on_skip_button_down() -> void:
+	_skip_held = true
+
+
+func _on_skip_button_up() -> void:
+	_skip_held = false
+
+
+func _append_history(entry: Dictionary) -> void:
+	_history.append(entry)
+	if _history.size() > BACKLOG_CAP:
+		_history = _history.slice(_history.size() - BACKLOG_CAP)
+
+
+func _ensure_panels() -> void:
+	if _backlog == null or not is_instance_valid(_backlog):
+		_backlog = BacklogPanelScene.instantiate()
+		add_child(_backlog)
+	if _settings_panel == null or not is_instance_valid(_settings_panel):
+		_settings_panel = SettingsPanelScene.instantiate()
+		add_child(_settings_panel)
+		_settings_panel.changed.connect(_on_settings_changed)
+
+
+func _toggle_backlog() -> void:
+	if _menu.is_open() or is_settings_open():
+		return
+	if is_backlog_open():
+		_backlog.close()
+		return
+	_ensure_panels()
+	_backlog.open(_history)
+
+
+func _open_settings() -> void:
+	_ensure_panels()
+	_settings_panel.open(services.settings)
+
+
+func _on_settings_changed() -> void:
+	typewriter_cps = services.settings.text_speed
+	_audio.apply_settings(services.settings)
+
+
 func _on_chapter_started(data: Dictionary) -> void:
 	_show_chapter_card(session.chapter_title(str(data.get("chapter", ""))))
 	call_deferred("_autosave")
@@ -241,6 +438,12 @@ func _autosave() -> void:
 func _on_story_finished() -> void:
 	_choice_menu.visible = false
 	_menu.close()
+	_set_auto(false)
+	_skip_held = false
+	if is_backlog_open():
+		_backlog.close()
+	if is_settings_open():
+		_settings_panel.close()
 	_start_fade(1.0, 0.4)
 	if _fade_tween != null:
 		_fade_tween.tween_callback(func(): finished.emit())
@@ -324,6 +527,7 @@ func _repaint_from_state() -> void:
 	if runtime == null:
 		return
 	_typing = false
+	_auto_timer = 0.0
 	_clear_choices()
 	_choice_menu.visible = false
 	_stage.reset()

@@ -4,6 +4,7 @@ const VnsStoryLoader := preload("res://addons/vns/vns_story.gd")
 const TitleScreenScene := preload("res://game/presentation/title_screen.tscn")
 const StoryScreenScene := preload("res://game/presentation/story_screen.tscn")
 const MenuOverlayScene := preload("res://game/presentation/menu_overlay.tscn")
+const SettingsPanelScene := preload("res://game/presentation/settings_panel.tscn")
 const SaveSlotInfoScript := preload("res://game/presentation/save_slot_info.gd")
 
 const SAVE_SLOTS := ["auto", "slot1", "slot2", "slot3"]
@@ -14,6 +15,7 @@ var story: Dictionary = {}
 
 var _current_screen: Node = null
 var _load_overlay: Control = null
+var _settings_panel: Control = null
 
 
 func _ready() -> void:
@@ -31,10 +33,12 @@ func _ready() -> void:
 
 func _show_title() -> void:
 	_close_load_overlay()
+	_close_settings()
 	var screen: Node = TitleScreenScene.instantiate()
 	screen.start_requested.connect(_start_story)
 	screen.continue_requested.connect(_continue_story)
 	screen.load_requested.connect(_open_load_menu)
+	screen.settings_requested.connect(_open_settings)
 	screen.quit_requested.connect(_quit)
 	_swap_screen(screen)
 	screen.set_saves_visible(not _latest_save().is_empty())
@@ -91,8 +95,24 @@ func _close_load_overlay() -> void:
 		_load_overlay.close()
 
 
+func _open_settings() -> void:
+	if _settings_panel == null or not is_instance_valid(_settings_panel):
+		_settings_panel = SettingsPanelScene.instantiate()
+		add_child(_settings_panel)
+	_settings_panel.open(services.settings)
+
+
+func _close_settings() -> void:
+	if _settings_panel != null and is_instance_valid(_settings_panel):
+		_settings_panel.close()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
+		return
+	if _settings_panel != null and is_instance_valid(_settings_panel) and _settings_panel.is_open():
+		_close_settings()
+		get_viewport().set_input_as_handled()
 		return
 	if _load_overlay != null and is_instance_valid(_load_overlay) and _load_overlay.is_open():
 		_close_load_overlay()
@@ -105,6 +125,7 @@ func _new_session() -> VngStorySession:
 
 func _show_story(session: VngStorySession) -> void:
 	_close_load_overlay()
+	_close_settings()
 	var screen: Node = StoryScreenScene.instantiate()
 	screen.setup_session(services, session, _display_names())
 	screen.finished.connect(_show_title)

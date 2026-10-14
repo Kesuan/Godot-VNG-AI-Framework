@@ -88,14 +88,34 @@ theme_override_constants/separation = 12
 visible = false
 
 [node name="HintLabel" type="Label" parent="."]
-offset_left = 860.0
+offset_left = 80.0
 offset_top = 676.0
-offset_right = 1200.0
+offset_right = 660.0
 offset_bottom = 706.0
 mouse_filter = 2
 theme_override_font_sizes/font_size = 16
-text = "点击 / 空格 继续    ESC 菜单"
-horizontal_alignment = 2
+text = "点击 / 空格 继续    Ctrl 跳过    A 自动    B 回顾    ESC 菜单"
+
+[node name="BottomBar" type="HBoxContainer" parent="."]
+offset_left = 680.0
+offset_top = 666.0
+offset_right = 1200.0
+offset_bottom = 710.0
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="BacklogButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(92, 36)
+text = "回顾"
+
+[node name="AutoButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(92, 36)
+toggle_mode = true
+text = "自动"
+
+[node name="SkipButton" type="Button" parent="BottomBar"]
+custom_minimum_size = Vector2(92, 36)
+text = "跳过"
 
 [node name="ChapterCard" type="Label" parent="."]
 modulate = Color(1, 1, 1, 0)

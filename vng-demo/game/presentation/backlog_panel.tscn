@@ -1,0 +1,41 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://game/presentation/backlog_panel.gd" id="1_backlog"]
+
+[node name="BacklogPanel" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+visible = false
+script = ExtResource("1_backlog")
+
+[node name="Dim" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.85)
+
+[node name="Panel" type="VBoxContainer" parent="."]
+offset_left = 220.0
+offset_top = 60.0
+offset_right = 1060.0
+offset_bottom = 660.0
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Panel"]
+theme_override_font_sizes/font_size = 30
+text = "回顾"
+horizontal_alignment = 1
+
+[node name="Scroll" type="ScrollContainer" parent="Panel"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="Panel/Scroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="BackButton" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(0, 44)
+text = "关闭"

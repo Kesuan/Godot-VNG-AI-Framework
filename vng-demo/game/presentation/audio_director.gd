@@ -38,3 +38,16 @@ func stop_all() -> void:
 	current_bgm = ""
 	_bgm_player.stop()
 	_sfx_player.stop()
+
+
+func apply_settings(settings: VngSettings) -> void:
+	if settings == null:
+		return
+	_bgm_player.volume_db = _linear_db(settings.bgm_volume)
+	_sfx_player.volume_db = _linear_db(settings.sfx_volume)
+
+
+static func _linear_db(value: float) -> float:
+	if value <= 0.002:
+		return -80.0
+	return linear_to_db(value)

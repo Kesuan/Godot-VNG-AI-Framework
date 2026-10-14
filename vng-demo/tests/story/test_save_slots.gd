@@ -106,6 +106,8 @@ func test_main_new_game_writes_chapter1_autosave() -> void:
 	VngRun.tree.root.add_child(main)
 	await VngRun.tree.process_frame
 	main.services.save_root = TEST_SAVE_ROOT
+	main.services.settings = VngSettings.new("user://vng_test/settings.json", false)
+	main.services.read_log = VngReadLog.new("user://vng_test/read")
 	main._show_title()
 	await VngRun.tree.process_frame
 	await VngRun.tree.process_frame
@@ -145,6 +147,8 @@ func test_main_continue_from_title_button() -> void:
 	VngRun.tree.root.add_child(main)
 	await VngRun.tree.process_frame
 	main.services.save_root = TEST_SAVE_ROOT
+	main.services.settings = VngSettings.new("user://vng_test/settings.json", false)
+	main.services.read_log = VngReadLog.new("user://vng_test/read")
 	main._show_title()
 	await VngRun.tree.process_frame
 	await VngRun.tree.process_frame
@@ -181,6 +185,8 @@ func test_continue_prefers_latest_save_sequence() -> void:
 	VngRun.tree.root.add_child(main)
 	await VngRun.tree.process_frame
 	main.services.save_root = TEST_SAVE_ROOT
+	main.services.settings = VngSettings.new("user://vng_test/settings.json", false)
+	main.services.read_log = VngReadLog.new("user://vng_test/read")
 	main._show_title()
 	await VngRun.tree.process_frame
 	await VngRun.tree.process_frame
@@ -216,6 +222,8 @@ func test_title_load_specific_slot_and_back() -> void:
 	VngRun.tree.root.add_child(main)
 	await VngRun.tree.process_frame
 	main.services.save_root = TEST_SAVE_ROOT
+	main.services.settings = VngSettings.new("user://vng_test/settings.json", false)
+	main.services.read_log = VngReadLog.new("user://vng_test/read")
 	main._show_title()
 	await VngRun.tree.process_frame
 	await VngRun.tree.process_frame
@@ -277,10 +285,10 @@ func _build_saves() -> Dictionary:
 
 func _screen(services: VngServices) -> Control:
 	services.save_root = TEST_SAVE_ROOT
+	services.settings.text_speed = 100000.0
 	var story := _two_chapter_story()
 	var session := VngStorySession.new(services, story["manifest"], story["chapters"])
 	var screen: Control = StoryScreenScene.instantiate()
-	screen.typewriter_cps = 100000.0
 	screen.setup_session(services, session)
 	VngRun.tree.root.add_child(screen)
 	return screen

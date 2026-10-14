@@ -69,8 +69,8 @@ func test_choice_buttons_map_to_runtime_indices() -> void:
 
 func test_mouse_click_advances_dialogue() -> void:
 	var services := VngServices.for_tests(3)
+	services.settings.text_speed = 100000.0
 	var screen: Control = StoryScreenScene.instantiate()
-	screen.typewriter_cps = 100000.0
 	screen.setup(services, _click_chapter(), "start")
 	VngRun.tree.root.add_child(screen)
 	await VngRun.tree.process_frame
@@ -92,8 +92,8 @@ func test_mouse_click_advances_dialogue() -> void:
 
 func test_keyboard_accept_advances_dialogue() -> void:
 	var services := VngServices.for_tests(3)
+	services.settings.text_speed = 100000.0
 	var screen: Control = StoryScreenScene.instantiate()
-	screen.typewriter_cps = 100000.0
 	screen.setup(services, _click_chapter(), "start")
 	VngRun.tree.root.add_child(screen)
 	await VngRun.tree.process_frame
